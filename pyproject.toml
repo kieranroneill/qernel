@@ -1,0 +1,38 @@
+[project]
+name = "qernel"
+version = "1.0.0"
+description = "Qernel is a local AI workspace for generating, adapting, and shipping software faster."
+authors = [
+  { name = "Kieran O'Neill", email = "hello@kieranoneill.com" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["api"]
+include-package-data = true
+
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+
+[tool.isort]
+known_first_party = ["qernel"]
+profile = "black"
+
+[tool.pylint."messages control"]
+disable = "all"
+enable = [
+  "empty-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring"
+]
+ignore = ["setup.py", "__init__.py"]
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py"]

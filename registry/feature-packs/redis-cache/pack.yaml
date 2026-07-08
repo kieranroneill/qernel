@@ -1,0 +1,3 @@
+id: redis-cache
+version: 0.1.0
+description: Adds Redis cache integration primitives.

@@ -1,0 +1,3 @@
+id: auth-jwt
+version: 0.1.0
+description: Adds JWT-based authentication primitives.

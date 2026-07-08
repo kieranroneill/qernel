@@ -1,0 +1,6 @@
+APP_KINDS = ("api", "cli", "dashboard", "saas", "website", "worker")
+AUTH_PREFERENCES = ("jwt", "none")
+BACKEND_FRAMEWORKS = ("fastapi", "express", "go", "none")
+DATABASES = ("mysql", "postgres", "sqlite", "none")
+DEPLOYMENT_TARGETS = ("docker-compose", "kubernetes")
+FRONTEND_FRAMEWORKS = ("nextjs", "react", "none")

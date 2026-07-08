@@ -444,4 +444,5 @@ cython_debug/
 
 ### Project files
 .model/
+.workspace/
 !build/

@@ -437,4 +437,5 @@ dist
 
 ### Project files
 .model/
+.workspace/
 !build/

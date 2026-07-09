@@ -1,7 +1,7 @@
-from api.schemas.defaults import BaseSchema
+from api.schemas.defaults import BaseHTTPSchema
 
 from .health_model_response_schema import HealthModelResponseSchema
 
 
-class HealthResponseSchema(BaseSchema):
+class HealthResponseSchema(BaseHTTPSchema):
     model: HealthModelResponseSchema | None = None

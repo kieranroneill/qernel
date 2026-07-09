@@ -27,6 +27,7 @@ async def _lifespan(__app: FastAPI) -> AsyncIterator[None]:
     # attach dependencies
     __app.state.config = SystemConfigDTO(
         model=ModelConfigDTO(
+            api_key=os.environ["MODEL_API_KEY"] or None,
             base_url=os.environ["MODEL_BASE_URL"],
             model=os.environ["MODEL"],
             provider=os.environ["MODEL_PROVIDER"],

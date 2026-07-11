@@ -47,8 +47,6 @@ class TemplateResolverService:
 
         return questions
 
-        return manifests
-
     def _derive_variables(
         self,
         *,

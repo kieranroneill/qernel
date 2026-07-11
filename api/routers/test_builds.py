@@ -16,9 +16,21 @@ def test_build_resolve_route(
 ) -> None:
     agent_service = MockAgentService()
 
-    agent_service.set_chat_response(
-        'Here is the extracted software project intent in JSON format:\n\n```json\n{\n  "app_kind": "saas",\n  "backend_framework": "fastapi",\n  "frontend_framework": "nextjs"\n}\n```\n\nNote: I\'ve assumed that since you mentioned a Next.js + FastAPI SaaS app, it\'s likely that the authentication preference is JWT (JSON Web Tokens) and the database is not specified, so I\'ve left it as `none`. If you\'d like to specify a different database or authentication method, please let me know!'
-    )
+    agent_service.set_chat_response("""
+Here is the extracted software project intent in JSON format:
+
+```json
+{
+  "app_kind": "saas",
+  "backend_framework": "fastapi",
+  "frontend_framework": "nextjs"
+}
+```
+
+Note: I've assumed that since you mentioned a Next.js + FastAPI SaaS app, it's likely that the authentication
+preference is JWT (JSON Web Tokens) and the database is not specified, so I've left it as `none`.
+If you'd like to specify a different database or authentication method, please let me know!
+        """)
     mocker.patch(
         "api.routers.builds.AgentServiceFactory.create",
         return_value=agent_service,

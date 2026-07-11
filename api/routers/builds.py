@@ -1,6 +1,4 @@
-import os
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from api.dependencies import system_config
 from api.dtos.system import SystemConfigDTO

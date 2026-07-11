@@ -1,0 +1,66 @@
+name: 'Pull Request Checks'
+
+on:
+  pull_request:
+
+jobs:
+  ##
+  # validation
+  ##
+
+  validate_pr_title:
+    name: 'Validate PR Title'
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: '🛎 Checkout'
+        uses: actions/checkout@v4
+      - name: '🔧 Setup Node'
+        uses: ./.github/actions/use-pnpm-dependencies
+      - name: '📥 Get PR Title'
+        id: get_pr_title
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const { data } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            return data.title;
+      - name: '✅ Validate'
+        run: |
+          echo "${{ steps.get_pr_title.outputs.result }}" | pnpm exec commitlint
+
+  ##
+  # lint
+  ##
+
+  lint_python:
+    name: 'Lint: Python'
+    needs: [validate_pr_title]
+    runs-on: ubuntu-latest
+    steps:
+      - name: '🛎 Checkout'
+        uses: actions/checkout@v4
+      - name: '🐍 Setup Python'
+        uses: ./.github/actions/use-python-dependencies
+      - name: '👕 Lint'
+        run: python -m flake8 .
+
+  ##
+  # tests
+  ##
+
+  test_python_unit:
+    name: 'Unit Tests: Python'
+    needs: [validate_pr_title]
+    runs-on: ubuntu-latest
+    steps:
+      - name: '🛎 Checkout'
+        uses: actions/checkout@v4
+      - name: '🐍 Setup Python'
+        uses: ./.github/actions/use-python-dependencies
+      - name: '🧪 Test'
+        run: python -m pytest -vv -s --log-cli-level=ERROR api

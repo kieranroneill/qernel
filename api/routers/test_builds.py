@@ -26,7 +26,7 @@ def test_build_resolve_route(
 
     with TestClient(app) as client:
         response = client.post(
-            "/builds/resolve",
+            "/api/builds/resolve",
             json={"prompt": "Build me a Next.js + FastAPI SaaS app"},
         )
 

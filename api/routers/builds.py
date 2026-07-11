@@ -12,7 +12,7 @@ from api.services.agents import AgentServiceFactory
 from api.services.builds import TemplateResolverService
 from api.utilities.logging import get_logger
 
-router = APIRouter(prefix="/builds", tags=["builds"])
+router = APIRouter(prefix="/api/builds", tags=["builds"])
 
 
 @router.post("/resolve", response_model=BuildResolveResponseSchema)

@@ -1,8 +1,13 @@
 from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
 
 from api.dtos.system import RootConfigDTO
+
+
+def pytest_sessionstart() -> None:
+    load_dotenv(".env.test")
 
 
 @pytest.fixture(scope="module")

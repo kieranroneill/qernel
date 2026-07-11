@@ -1,5 +1,3 @@
-import json
-
 import yaml
 from openai.types.chat import (
     ChatCompletionSystemMessageParam,

@@ -13,6 +13,7 @@ def _app() -> FastAPI:
     app_title = os.environ["APP_TITLE"]
     __app = FastAPI(lifespan=_lifespan, title=f"{app_title} API")
 
+    __app.include_router(routers.builds.router)
     __app.include_router(routers.health.router)
 
     return __app

@@ -17,11 +17,12 @@ from openai.types.chat import (
 
 from api.dtos.agents import AgentChatResponseDTO
 from api.utilities.datetime import timestamp
+from api.utilities.logging import get_logger
 
 from .abstract_agent_service import AbstractAgentService
 
 
-class OllarmaAgentService(AbstractAgentService):
+class OllamaAgentService(AbstractAgentService):
     def __init__(self, api_key: str | None, base_url: str, model: str) -> None:
         super().__init__(api_key, base_url, model)
 
@@ -29,6 +30,7 @@ class OllarmaAgentService(AbstractAgentService):
             api_key=self._api_key or "ollama",
             base_url=f"{base_url}/v1/",
         )
+        self._logger = get_logger()
 
     ##
     # public methods
@@ -52,6 +54,9 @@ class OllarmaAgentService(AbstractAgentService):
             temperature=temperature,
             response_format=response_format,
         )
+
+        self._logger.debug(f"response: {response}")
+
         content = response.choices[0].message.content or ""
 
         return AgentChatResponseDTO(

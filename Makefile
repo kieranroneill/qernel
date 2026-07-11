@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: test
+.PHONY: start test
 
 all: install
 

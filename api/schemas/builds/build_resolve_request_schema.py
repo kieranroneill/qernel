@@ -1,5 +1,5 @@
-from pydantic import BaseModel
+from api.schemas.defaults import BaseHTTPSchema
 
 
-class BuildResolveRequestSchema(BaseModel):
+class BuildResolveRequestSchema(BaseHTTPSchema):
     prompt: str

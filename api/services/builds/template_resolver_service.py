@@ -15,6 +15,7 @@ from api.constants import (
     FRONTEND_FRAMEWORKS,
 )
 from api.dtos.system import RootConfigDTO
+from api.errors.templates import TemplateNotFoundError
 from api.schemas.builds import (
     TemplateIntentSchema,
     TemplateManifestSchema,
@@ -22,11 +23,14 @@ from api.schemas.builds import (
     TemplateResolutionSchema,
 )
 from api.services.agents import AbstractAgentService
+from api.utilities.agents import json_from_agent_response
+from api.utilities.logging import get_logger
 
 
 class TemplateResolverService:
     def __init__(self, agent_service: AbstractAgentService, root_config: RootConfigDTO) -> None:
         self._agent_service = agent_service
+        self._logger = get_logger()
         self._root_config = root_config
 
     ##
@@ -182,12 +186,22 @@ Rules:
                 role="user",
             ),
         ]
+
+        self._logger.debug(f'prompt "{prompt}"')
+
         response = await self._agent_service.chat(messages=messages, temperature=0.0)
-        data = json.loads(response.content)
+        data = json_from_agent_response(response)
+
+        if data is None:
+            self._logger.debug(f'no template intent found for prompt "{prompt}"')
+
+            raise TemplateNotFoundError()
+
+        self._logger.debug(f"found template intent '{data}'")
 
         return TemplateIntentSchema.model_validate(data)
 
-    async def resolve_from_intent(self, intent: TemplateIntentSchema) -> TemplateResolutionSchema | None:
+    async def resolve_from_intent(self, intent: TemplateIntentSchema) -> TemplateResolutionSchema:
         manifests = self._load_template_manifests()
         candidates: list[tuple[TemplateManifestSchema, float, list[str]]] = []
 
@@ -200,7 +214,9 @@ Rules:
             candidates.append((manifest, score, reasons))
 
         if not candidates:
-            return None
+            self._logger.debug(f'no template candidates were found for for the intent "{intent}"')
+
+            raise TemplateNotFoundError()
 
         candidates.sort(key=lambda item: item[1], reverse=True)
         best_manifest, best_score, best_reasons = candidates[0]

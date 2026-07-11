@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
-from api.schemas.builds import TemplateIntentSchema, TemplateResolutionSchema
+from .template_intent_schema import TemplateIntentSchema
+from .template_resolution_schema import TemplateResolutionSchema
 
 
 class BuildResolveResponseSchema(BaseModel):

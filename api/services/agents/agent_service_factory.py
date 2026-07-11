@@ -1,5 +1,7 @@
 from api.dtos.system import ModelConfigDTO
-from api.services.agents import AbstractAgentService, OllarmaAgentService
+
+from .abstract_agent_service import AbstractAgentService
+from .ollarma_agent_service import OllarmaAgentService
 
 
 class AgentServiceFactory:

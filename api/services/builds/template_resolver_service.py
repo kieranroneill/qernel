@@ -57,8 +57,8 @@ class TemplateResolverService:
     ) -> dict[str, object]:
         defaults = {variable.name: variable.default for variable in manifest.variables if variable.default is not None}
 
-        if intent.auth_preference is not None and intent.auth_preference.value != "none":
-            defaults["auth_mode"] = intent.auth_preference.value
+        if intent.auth_preference is not None and intent.auth_preference != "none":
+            defaults["auth_mode"] = intent.auth_preference
 
         defaults["include_billing"] = "billing" in intent.requested_features
         defaults["requested_features"] = intent.requested_features
@@ -69,9 +69,13 @@ class TemplateResolverService:
         manifests: list[TemplateManifestSchema] = []
 
         template_root = self._root_config.registry / "templates"
+
         for manifest_path in template_root.glob("*/template.yaml"):
             payload = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+
             manifests.append(TemplateManifestSchema.model_validate(payload))
+
+        return manifests
 
     def _score_manifest(
         self,
@@ -85,41 +89,50 @@ class TemplateResolverService:
         if (
             intent.app_kind is not None
             and manifest.classification is not None
-            and manifest.classification.app_kind == intent.app_kind.value
+            and manifest.classification.app_kind == intent.app_kind
         ):
             score += 5.0
             reasons.append("Matched app kind.")
 
         manifest_frontend = manifest.stack.frontend.framework if manifest.stack.frontend else None
-        if intent.frontend_framework is not None and manifest_frontend == intent.frontend_framework.value:
+
+        if intent.frontend_framework is not None and manifest_frontend == intent.frontend_framework:
             score += 4.0
             reasons.append("Matched frontend framework.")
 
         manifest_backend = manifest.stack.backend.framework if manifest.stack.backend else None
-        if intent.backend_framework is not None and manifest_backend == intent.backend_framework.value:
+
+        if intent.backend_framework is not None and manifest_backend == intent.backend_framework:
             score += 4.0
             reasons.append("Matched backend framework.")
 
         manifest_database = manifest.stack.database
-        if intent.database is not None and intent.database.value != "none" and manifest_database is not None:
+
+        if intent.database is not None and intent.database != "none" and manifest_database is not None:
             supported_databases = set(manifest_database.supported)
-            if intent.database.value == manifest_database.default or intent.database.value in supported_databases:
+
+            if intent.database == manifest_database.default or intent.database in supported_databases:
                 score += 2.0
+
                 reasons.append("Matched database.")
 
         manifest_auth = manifest.stack.auth
-        if intent.auth_preference is not None and intent.auth_preference.value != "none" and manifest_auth is not None:
-            if intent.auth_preference.value in set(manifest_auth.supported):
+
+        if intent.auth_preference is not None and intent.auth_preference != "none" and manifest_auth is not None:
+            if intent.auth_preference in set(manifest_auth.supported):
                 score += 2.0
+
                 reasons.append("Matched auth preference.")
 
         manifest_deployment = manifest.stack.deployment
+
         if (
             intent.deployment_target is not None
             and manifest_deployment is not None
-            and intent.deployment_target.value in set(manifest_deployment.targets)
+            and intent.deployment_target in set(manifest_deployment.targets)
         ):
             score += 2.0
+
             reasons.append("Matched deployment target.")
 
         feature_packs = set(manifest.supports.feature_packs) if manifest.supports is not None else set()
@@ -127,11 +140,13 @@ class TemplateResolverService:
         if "billing" in intent.requested_features:
             if "stripe-billing" in feature_packs:
                 score += 1.5
+
                 reasons.append("Supports billing feature pack.")
 
         if "redis" in intent.requested_features:
             if "redis-cache" in feature_packs:
                 score += 1.5
+
                 reasons.append("Supports redis cache feature pack.")
 
         return score, reasons

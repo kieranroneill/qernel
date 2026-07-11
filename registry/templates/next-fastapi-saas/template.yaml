@@ -1,7 +1,10 @@
 id: next-fastapi-saas
 name: Next.js + FastAPI SaaS
-version: 1.2.0
+version: 1.0.0
 description: Backend-oriented starter template for a SaaS-style project using a FastAPI API and a future Next.js frontend.
+
+classification:
+  app_kind: saas
 
 stack:
   frontend:
@@ -14,6 +17,9 @@ stack:
     package_manager: pip
   database:
     default: postgres
+    supported: [postgres]
+  auth:
+    supported: [jwt]
   deployment:
     targets: [docker-compose]
 
@@ -34,9 +40,3 @@ supports:
     - auth-jwt
     - postgres
     - redis-cache
-
-verification:
-  install:
-    - pip install -r requirements.txt
-  checks:
-    - python -m pytest -q

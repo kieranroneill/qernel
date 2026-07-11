@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+.PHONY: test
+
 all: install
 
 ###

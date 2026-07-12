@@ -51,6 +51,51 @@ start:
 		--build
 
 ###
+# database
+###
+
+database_downgrade:
+	docker compose \
+		-f ./deployments/compose.yml \
+		run \
+		--build \
+		--rm api \
+		alembic downgrade -1
+
+database_downgrade_dev:
+	docker compose \
+		-f ./deployments/compose.development.yml \
+		run \
+		--build \
+		--rm api \
+		alembic downgrade -1
+
+database_upgrade:
+	docker compose \
+		-f ./deployments/compose.yml \
+		run \
+		--build \
+		--rm api \
+		alembic upgrade head
+
+database_upgrade_dev:
+	docker compose \
+		-f ./deployments/compose.development.yml \
+		run \
+		--build \
+		--rm api \
+		alembic upgrade head
+
+create_migration:
+	test -n "$(MESSAGE)" || (echo 'Usage: make create_migration MESSAGE="adds boats table"' && exit 1)
+	docker compose \
+		-f ./deployments/compose.development.yml \
+		 run \
+		--build \
+		 --rm api \
+		alembic revision --autogenerate -m "$(MESSAGE)"
+
+###
 # formatting
 ###
 

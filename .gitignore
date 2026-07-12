@@ -436,6 +436,7 @@ dist
 .pnp.*
 
 ### Project files
+.database/
 .model/
 .workspace/
 !build/

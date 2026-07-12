@@ -32,6 +32,7 @@
     - [3.1.2. Start Docker](#312-start-docker)
 * [4. Appendix](#-4-appendix)
   - [4.1. Useful commands](#41-useful-commands)
+  - [4.2. Database migrations](#42-database-migrations)
 * [5. How to contribute](#-5-how-to-contribute)
 * [6. License](#-6-license)
 
@@ -174,6 +175,35 @@ $ make dev
 | `make test`                                                 | Runs all tests.                                                      |
 | `make test_py_unit`                                         | Runs Python tests.                                                   |
 | `make test_unit`                                            | Runs all unit tests.                                                 |
+
+<sup>[Back to top ^][table-of-contents]</sup>
+
+### 4.2. Database migrations
+
+Database migrations are managed with [Alembic](https://alembic.sqlalchemy.org/en/latest/) and run through Docker, so they use the same environment as the API service.
+
+Use the following commands to create, apply, or roll back migrations:
+
+```shell
+make create_migration MESSAGE="adds boats_profiles table"
+make database_upgrade
+make database_downgrade
+```
+
+For development, the matching commands are:
+
+```shell
+make database_upgrade_dev
+make database_downgrade_dev
+```
+
+- `create_migration` generates a new Alembic revision from SQLAlchemy model changes.
+- `database_upgrade` applies all pending migrations in the production Compose setup.
+- `database_downgrade` rolls back the latest migration in the production Compose setup.
+- `database_upgrade_dev` applies all pending migrations in the development Compose setup.
+- `database_downgrade_dev` rolls back the latest migration in the development Compose setup.
+
+> ⚠️ **NOTE:** The `MESSAGE` argument is required when creating a migration because it becomes the migration description.
 
 <sup>[Back to top ^][table-of-contents]</sup>
 

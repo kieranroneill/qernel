@@ -31,7 +31,7 @@ function main() {
   healthcheck_url="http://127.0.0.1:11434/api/tags"
   ready=0
 
-  printf "starting ollama on \"%s\"...\n" "${host}"
+  printf "%b starting ollama on \"%s\"...\n" "${INFO_PREFIX}" "${host}"
   export OLLAMA_HOST="${host}"
   /bin/ollama serve &
   OLLAMA_PID=$!

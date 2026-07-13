@@ -1,9 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from api.schemas.defaults import BaseSchema
 
 from .template_resolution_candidates_schema import TemplateResolutionCandidateSchema
 
 
-class TemplateResolutionSchema(BaseModel):
+class TemplateResolutionSchema(BaseSchema):
     candidates: list[TemplateResolutionCandidateSchema] = Field(default_factory=list)
     derived_variables: dict[str, object]
     reasons: list[str]

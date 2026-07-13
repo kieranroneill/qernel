@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Iterable
 
 from openai import Omit
 from openai.types import (
@@ -7,16 +6,8 @@ from openai.types import (
     ResponseFormatJSONSchema,
     ResponseFormatText,
 )
-from openai.types.chat import (
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionDeveloperMessageParam,
-    ChatCompletionFunctionMessageParam,
-    ChatCompletionSystemMessageParam,
-    ChatCompletionToolMessageParam,
-    ChatCompletionUserMessageParam,
-)
 
-from api.dtos.agents import AgentChatResponseDTO
+from api.dtos.agents import AgentChatResponseDTO, ConversationMessageDTO
 
 
 class AbstractAgentService(ABC):
@@ -31,14 +22,7 @@ class AbstractAgentService(ABC):
     @abstractmethod
     async def chat(
         self,
-        messages: Iterable[
-            ChatCompletionAssistantMessageParam
-            | ChatCompletionDeveloperMessageParam
-            | ChatCompletionFunctionMessageParam
-            | ChatCompletionSystemMessageParam
-            | ChatCompletionToolMessageParam
-            | ChatCompletionUserMessageParam
-        ],
+        messages: list[ConversationMessageDTO],
         temperature: float = 0.1,
         response_format: ResponseFormatText | ResponseFormatJSONSchema | ResponseFormatJSONObject | Omit | None = None,
     ) -> AgentChatResponseDTO:

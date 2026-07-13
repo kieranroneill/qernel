@@ -6,7 +6,7 @@ from api.errors.defaults import BaseError
 
 class ModelNotSupportedError(BaseError):
     def __init__(self, message: str | None = None, provider: str | None = None) -> None:
-        super().__init__(ErrorCodeEnum.MODEL_NOT_SUPPORTED_ERROR, message or "Model Not Supported")
+        super().__init__(ErrorCodeEnum.MODEL_NOT_SUPPORTED_ERROR, message or "model not supported")
 
         self.provider = provider
 

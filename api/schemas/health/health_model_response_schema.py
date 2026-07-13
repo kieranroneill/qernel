@@ -1,5 +1,5 @@
-from api.schemas.defaults import BaseHTTPSchema
+from api.schemas.defaults import BaseSchema
 
 
-class HealthModelResponseSchema(BaseHTTPSchema):
+class HealthModelResponseSchema(BaseSchema):
     name: str

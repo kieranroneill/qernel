@@ -1,5 +1,6 @@
 from .build_resolve_request_schema import BuildResolveRequestSchema
 from .build_resolve_response_schema import BuildResolveResponseSchema
+from .build_schema import BuildSchema
 from .template_intent_schema import TemplateIntentSchema
 from .template_manifest_auth_schema import TemplateManifestAuthSchema
 from .template_manifest_backend_schema import TemplateManifestBackendSchema
@@ -19,6 +20,7 @@ from .template_resolution_schema import TemplateResolutionSchema
 __all__ = [
     "BuildResolveRequestSchema",
     "BuildResolveResponseSchema",
+    "BuildSchema",
     "TemplateManifestAuthSchema",
     "TemplateManifestBackendSchema",
     "TemplateManifestClassificationSchema",

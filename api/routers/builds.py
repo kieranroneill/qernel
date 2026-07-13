@@ -1,6 +1,10 @@
+from datetime import datetime
+from uuid import uuid4
+
 from fastapi import APIRouter, Depends
 
 from api.dependencies import system_config
+from api.dtos.builds import BuildDTO
 from api.dtos.system import SystemConfigDTO
 from api.errors.defaults import BaseError
 from api.errors.general import InternalServerError
@@ -25,8 +29,15 @@ async def build_resolve(
         template_resolver_service = TemplateResolverService(
             agent_service=agent_service, root_config=_system_config.roots
         )
-        intent = await template_resolver_service.intent_from_prompt(prompt=request.prompt)
-        template_resolution = await template_resolver_service.resolve_from_intent(intent=intent)
+        now = datetime.now()
+        build = BuildDTO(
+            active=True,
+            id=uuid4(),
+            created_at=now,
+            updated_at=now,
+        )
+        intent_result = await template_resolver_service.intent_from_prompt(build_id=build.id, prompt=request.prompt)
+        template_resolution = await template_resolver_service.resolve_from_intent(intent=intent_result.intent)
     except TemplateNotFoundError:
         raise TemplateNotFoundError().to_http_exception(status_code=404)
     except BaseError as e:
@@ -36,4 +47,8 @@ async def build_resolve(
 
         raise InternalServerError().to_http_exception(status_code=500)
 
-    return BuildResolveResponseSchema(intent=intent, resolution=template_resolution)
+    build.messages = intent_result.messages
+
+    return BuildResolveResponseSchema(
+        build=build.to_schema(), intent=intent_result.intent.to_schema(), resolution=template_resolution.to_schema()
+    )

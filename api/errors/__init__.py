@@ -1,3 +1,3 @@
-from . import defaults, general, models, templates
+from . import agents, defaults, general, templates
 
-__all__ = ["defaults", "general", "models", "templates"]
+__all__ = ["agents", "defaults", "general", "templates"]

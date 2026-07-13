@@ -57,7 +57,7 @@ class BuildModel(BaseModel):
     selected_feature_packs: Mapped[list[str]] = mapped_column(
         ARRAY(Text), default=list, nullable=False, server_default=text("'{}'")
     )
-    template_id: Mapped[str] = mapped_column(String, nullable=True)
+    template_id: Mapped[str | None] = mapped_column(String, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, onupdate=func.now(), server_default=func.now()
     )

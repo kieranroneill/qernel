@@ -1,5 +1,5 @@
-from .base_http_schema import BaseHTTPSchema
+from .base_schema import BaseSchema
 
 __all__ = [
-    "BaseHTTPSchema",
+    "BaseSchema",
 ]

@@ -24,8 +24,7 @@ function main {
 
   # run the integration tests
   printf "%b running integration tests... \n" "${INFO_PREFIX}"
-  source .venv/bin/activate && \
-		python3 -m pytest -vv -s --log-cli-level=ERROR test/integration
+  python3 -m pytest -vv -s --log-cli-level=ERROR test/integration
 
   # stop the services and remove
   printf "%b shutting down docker services... \n" "${INFO_PREFIX}"

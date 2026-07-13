@@ -150,7 +150,8 @@ test_unit:
 
 test_py_integration:
 	@echo ">>> running python integration tests"
-	./scripts/test_py_integration.sh
+	source .venv/bin/activate && \
+		./scripts/test_py_integration.sh
 
 test_py_unit:
 	@echo ">>> running python unit tests"

@@ -7,9 +7,9 @@ from typing import Any
 class AgentChatResponseDTO:
     content: str
     created_at: datetime
-    input_tokens: int | None
     model: str
-    output_tokens: int | None
     provider: str
     raw_response: dict[str, Any]
-    total_tokens: int | None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None

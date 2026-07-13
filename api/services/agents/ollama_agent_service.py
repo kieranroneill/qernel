@@ -72,7 +72,7 @@ class OllamaAgentService(AbstractAgentService):
     ) -> AgentChatResponseDTO:
         _messages = [self._to_openai_message(m) for m in messages]
         response = await self._client.chat.completions.create(
-            model=self._model,
+            model=self.model(),
             messages=_messages,
             temperature=temperature,
             response_format=response_format,

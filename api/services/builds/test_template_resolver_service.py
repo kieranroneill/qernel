@@ -2,8 +2,8 @@ from test.mocks import MockAgentService
 
 import pytest
 
+from api.dtos.builds import TemplateIntentDTO, TemplateResolutionDTO
 from api.dtos.system import RootConfigDTO
-from api.schemas.builds import TemplateIntentSchema, TemplateResolutionSchema
 
 from .template_resolver_service import TemplateResolverService
 
@@ -21,7 +21,7 @@ def service(root_config: RootConfigDTO) -> TemplateResolverService:
     [
         # next-fastapi-saas
         (
-            TemplateIntentSchema(
+            TemplateIntentDTO(
                 app_kind="saas",
                 auth_preference="jwt",
                 backend_framework="fastapi",
@@ -30,7 +30,7 @@ def service(root_config: RootConfigDTO) -> TemplateResolverService:
                 missing_fields=[],
                 requested_features=[],
             ),
-            TemplateResolutionSchema(
+            TemplateResolutionDTO(
                 derived_variables={
                     "auth_mode": "jwt",
                     "include_billing": False,
@@ -50,7 +50,7 @@ def service(root_config: RootConfigDTO) -> TemplateResolverService:
     ],
 )
 async def test_resolve_from_intent_matches(
-    service: TemplateResolverService, value: TemplateIntentSchema, expected: TemplateResolutionSchema
+    service: TemplateResolverService, value: TemplateIntentDTO, expected: TemplateResolutionDTO
 ) -> None:
     resolution = await service.resolve_from_intent(value)
 

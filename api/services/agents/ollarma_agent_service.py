@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from openai import AsyncOpenAI, Omit
 from openai.types import (
     ResponseFormatJSONObject,
@@ -17,6 +15,7 @@ from openai.types.chat import (
 
 from api.dtos.agents import AgentChatResponseDTO, ConversationMessageDTO
 from api.enums.agents import MessageRoleEnum
+from api.utilities.datetime import from_timestamp
 from api.utilities.logging import get_logger
 
 from .abstract_agent_service import AbstractAgentService
@@ -85,7 +84,7 @@ class OllamaAgentService(AbstractAgentService):
 
         return AgentChatResponseDTO(
             content=content,
-            created_at=datetime.fromtimestamp(response.created),
+            created_at=from_timestamp(response.created),
             input_tokens=response.usage.prompt_tokens,
             model=self.model(),
             output_tokens=response.usage.completion_tokens,

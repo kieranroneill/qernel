@@ -12,6 +12,7 @@ from api.errors.templates import TemplateNotFoundError
 from api.schemas.builds import BuildResolveRequestSchema, BuildResolveResponseSchema
 from api.services.agents import AgentServiceFactory
 from api.services.builds import TemplateResolverService
+from api.utilities.datetime import now
 from api.utilities.logging import get_logger
 
 router = APIRouter(prefix="/api/builds", tags=["builds"])
@@ -29,12 +30,12 @@ async def build_resolve(
         template_resolver_service = TemplateResolverService(
             agent_service=agent_service, root_config=_system_config.roots
         )
-        now = datetime.now()
+        _now = now()
         build = BuildDTO(
             active=True,
             id=uuid4(),
-            created_at=now,
-            updated_at=now,
+            created_at=_now,
+            updated_at=_now,
         )
         intent_result = await template_resolver_service.intent_from_prompt(build_id=build.id, prompt=request.prompt)
         template_resolution = await template_resolver_service.resolve_from_intent(intent=intent_result.intent)

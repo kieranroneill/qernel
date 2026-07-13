@@ -1,4 +1,3 @@
-from datetime import datetime
 from uuid import UUID, uuid4
 
 import yaml
@@ -27,6 +26,7 @@ from api.schemas.builds import (
 )
 from api.services.agents import AbstractAgentService
 from api.utilities.agents import json_from_agent_response
+from api.utilities.datetime import now
 from api.utilities.logging import get_logger
 
 
@@ -160,12 +160,12 @@ class TemplateResolverService:
     # public methods
     ##
     async def intent_from_prompt(self, build_id: UUID, prompt: str) -> IntentFromPromptResultDTO:
-        now = datetime.now()
+        _now = now()
         messages = [
             ConversationMessageDTO(
                 id=uuid4(),
                 build_id=build_id,
-                created_at=now,
+                created_at=_now,
                 content=f"""
 Extract software project intent from the user request.
 
@@ -191,7 +191,7 @@ Rules:
                 role=MessageRoleEnum.SYSTEM,
                 sequence_number=0,
                 status=MessageStatusEnum.COMPLETED,
-                updated_at=now,
+                updated_at=_now,
             )
         ]
 
@@ -199,7 +199,7 @@ Rules:
             ConversationMessageDTO(
                 id=uuid4(),
                 build_id=build_id,
-                created_at=now,
+                created_at=_now,
                 content=prompt,
                 internal=True,
                 model=self._agent_service.model(),
@@ -207,7 +207,7 @@ Rules:
                 role=MessageRoleEnum.USER,
                 sequence_number=messages[-1].sequence_number + 1,
                 status=MessageStatusEnum.COMPLETED,
-                updated_at=now,
+                updated_at=_now,
             )
         )
 

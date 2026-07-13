@@ -1,8 +1,6 @@
+from uuid import UUID, uuid4
+
 import yaml
-from openai.types.chat import (
-    ChatCompletionSystemMessageParam,
-    ChatCompletionUserMessageParam,
-)
 
 from api.constants import (
     APP_KINDS,
@@ -12,16 +10,23 @@ from api.constants import (
     DEPLOYMENT_TARGETS,
     FRONTEND_FRAMEWORKS,
 )
+from api.dtos.agents import ConversationMessageDTO
+from api.dtos.builds import (
+    IntentFromPromptResultDTO,
+    TemplateIntentDTO,
+    TemplateResolutionCandidateDTO,
+    TemplateResolutionDTO,
+)
 from api.dtos.system import RootConfigDTO
+from api.enums.agents import MessageRoleEnum, MessageStatusEnum
 from api.errors.templates import TemplateNotFoundError
 from api.schemas.builds import (
     TemplateIntentSchema,
     TemplateManifestSchema,
-    TemplateResolutionCandidateSchema,
-    TemplateResolutionSchema,
 )
 from api.services.agents import AbstractAgentService
 from api.utilities.agents import json_from_agent_response
+from api.utilities.datetime import now
 from api.utilities.logging import get_logger
 
 
@@ -34,7 +39,7 @@ class TemplateResolverService:
     ##
     # private methods
     ##
-    def _build_unresolved_questions(self, intent: TemplateIntentSchema) -> list[str]:
+    def _build_unresolved_questions(self, intent: TemplateIntentDTO) -> list[str]:
         questions: list[str] = []
 
         for field_name in intent.missing_fields:
@@ -52,7 +57,7 @@ class TemplateResolverService:
     def _derive_variables(
         self,
         *,
-        intent: TemplateIntentSchema,
+        intent: TemplateIntentDTO,
         manifest: TemplateManifestSchema,
     ) -> dict[str, object]:
         defaults = {variable.name: variable.default for variable in manifest.variables if variable.default is not None}
@@ -80,7 +85,7 @@ class TemplateResolverService:
     def _score_manifest(
         self,
         *,
-        intent: TemplateIntentSchema,
+        intent: TemplateIntentDTO,
         manifest: TemplateManifestSchema,
     ) -> tuple[float, list[str]]:
         score = 0.0
@@ -154,9 +159,13 @@ class TemplateResolverService:
     ##
     # public methods
     ##
-    async def intent_from_prompt(self, prompt: str) -> TemplateIntentSchema:
+    async def intent_from_prompt(self, build_id: UUID, prompt: str) -> IntentFromPromptResultDTO:
+        _now = now()
         messages = [
-            ChatCompletionSystemMessageParam(
+            ConversationMessageDTO(
+                id=uuid4(),
+                build_id=build_id,
+                created_at=_now,
                 content=f"""
 Extract software project intent from the user request.
 
@@ -177,17 +186,54 @@ Rules:
 - If a field is not specified and cannot be safely inferred, use null.
 - Do not invent unsupported frameworks or providers.
 """.strip(),
-                role="system",
-            ),
-            ChatCompletionUserMessageParam(
-                content=prompt,
-                role="user",
-            ),
+                internal=True,
+                model=self._agent_service.model(),
+                role=MessageRoleEnum.SYSTEM,
+                sequence_number=0,
+                status=MessageStatusEnum.COMPLETED,
+                updated_at=_now,
+            )
         ]
+
+        messages.append(
+            ConversationMessageDTO(
+                id=uuid4(),
+                build_id=build_id,
+                created_at=_now,
+                content=prompt,
+                internal=True,
+                model=self._agent_service.model(),
+                parent_message_id=messages[-1].id,
+                role=MessageRoleEnum.USER,
+                sequence_number=messages[-1].sequence_number + 1,
+                status=MessageStatusEnum.COMPLETED,
+                updated_at=_now,
+            )
+        )
 
         self._logger.debug(f'prompt "{prompt}"')
 
         response = await self._agent_service.chat(messages=messages, temperature=0.0)
+
+        messages.append(
+            ConversationMessageDTO(
+                id=uuid4(),
+                build_id=build_id,
+                created_at=response.created_at,
+                content=response.content,
+                input_tokens=response.input_tokens,
+                internal=True,
+                model=response.model,
+                output_tokens=response.output_tokens,
+                parent_message_id=messages[-1].id,
+                role=MessageRoleEnum.ASSISTANT,
+                sequence_number=messages[-1].sequence_number + 1,
+                status=MessageStatusEnum.COMPLETED,
+                total_tokens=response.total_tokens,
+                updated_at=response.created_at,
+            )
+        )
+
         data = json_from_agent_response(response)
 
         if data is None:
@@ -197,9 +243,12 @@ Rules:
 
         self._logger.debug(f"found template intent '{data}'")
 
-        return TemplateIntentSchema.model_validate(data)
+        return IntentFromPromptResultDTO(
+            intent=TemplateIntentDTO.from_schema(TemplateIntentSchema.model_validate(data)),
+            messages=messages,
+        )
 
-    async def resolve_from_intent(self, intent: TemplateIntentSchema) -> TemplateResolutionSchema:
+    async def resolve_from_intent(self, intent: TemplateIntentDTO) -> TemplateResolutionDTO:
         manifests = self._load_template_manifests()
         candidates: list[tuple[TemplateManifestSchema, float, list[str]]] = []
 
@@ -220,7 +269,7 @@ Rules:
         best_manifest, best_score, best_reasons = candidates[0]
 
         candidate_summaries = [
-            TemplateResolutionCandidateSchema(
+            TemplateResolutionCandidateDTO(
                 template_id=manifest.id,
                 score=score,
                 reasons=reasons,
@@ -233,7 +282,7 @@ Rules:
             manifest=best_manifest,
         )
 
-        return TemplateResolutionSchema(
+        return TemplateResolutionDTO(
             template_id=best_manifest.id,
             score=best_score,
             reasons=best_reasons,

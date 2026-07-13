@@ -15,8 +15,14 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # copy source files
+COPY ./alembic.ini .
 COPY ./pyproject.toml .
-COPY ./api .
+COPY ./api ./api
+COPY ./migrations .
 COPY ./registry .
 
-CMD ["python", "-m", "api.main"]
+# copy scripts
+COPY ./build/package/api/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from api.constants import (
     APP_KINDS,
@@ -10,9 +10,10 @@ from api.constants import (
     DEPLOYMENT_TARGETS,
     FRONTEND_FRAMEWORKS,
 )
+from api.schemas.defaults import BaseSchema
 
 
-class TemplateIntentSchema(BaseModel):
+class TemplateIntentSchema(BaseSchema):
     app_kind: Literal[*APP_KINDS] | None = None
     auth_preference: Literal[*AUTH_PREFERENCES] | None = None
     backend_framework: Literal[*BACKEND_FRAMEWORKS] | None = None

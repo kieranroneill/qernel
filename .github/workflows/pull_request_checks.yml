@@ -53,6 +53,18 @@ jobs:
   # tests
   ##
 
+  test_python_integration:
+    name: 'Integration Tests: Python'
+    needs: [validate_pr_title]
+    runs-on: ubuntu-latest
+    steps:
+      - name: '🛎 Checkout'
+        uses: actions/checkout@v4
+      - name: '🐍 Setup Python'
+        uses: ./.github/actions/use-python-dependencies
+      - name: '🧪 Test'
+        run: ./scripts/test_py_integration.sh
+
   test_python_unit:
     name: 'Unit Tests: Python'
     needs: [validate_pr_title]
@@ -63,4 +75,4 @@ jobs:
       - name: '🐍 Setup Python'
         uses: ./.github/actions/use-python-dependencies
       - name: '🧪 Test'
-        run: python -m pytest -vv -s --log-cli-level=ERROR api
+        run: python3 -m pytest -vv -s --log-cli-level=ERROR test/unit

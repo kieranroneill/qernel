@@ -1,5 +1,5 @@
-from api.schemas.defaults import BaseHTTPSchema
+from api.schemas.defaults import BaseSchema
 
 
-class BuildResolveRequestSchema(BaseHTTPSchema):
+class BuildResolveRequestSchema(BaseSchema):
     prompt: str

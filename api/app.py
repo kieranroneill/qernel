@@ -4,29 +4,40 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from api import routers
 from api.dtos.system import ModelConfigDTO, RootConfigDTO, SystemConfigDTO
+from api.utilities.database import url as database_url
 
 
-def _app() -> FastAPI:
+def _create_app() -> FastAPI:
     app_title = os.environ["APP_TITLE"]
-    __app = FastAPI(lifespan=_lifespan, title=f"{app_title} API")
+    _app = FastAPI(lifespan=_lifespan, title=f"{app_title} API")
 
-    __app.include_router(routers.builds.router)
-    __app.include_router(routers.health.router)
+    # /api
+    # /api/builds
+    _app.include_router(routers.builds.router)
+    # /health
+    _app.include_router(routers.health.router)
 
-    return __app
+    return _app
 
 
 @asynccontextmanager
-async def _lifespan(__app: FastAPI) -> AsyncIterator[None]:
+async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    database_engine = create_async_engine(database_url(), pool_pre_ping=True)
     workspace_root = Path("./.workspace").resolve()
 
+    # make workspace directory if it doesn't exist
     workspace_root.mkdir(parents=True, exist_ok=True)
 
     # attach dependencies
-    __app.state.config = SystemConfigDTO(
+    _app.state.config = SystemConfigDTO(
         model=ModelConfigDTO(
             api_key=os.environ["MODEL_API_KEY"] or None,
             base_url=os.environ["MODEL_BASE_URL"],
@@ -38,11 +49,17 @@ async def _lifespan(__app: FastAPI) -> AsyncIterator[None]:
             registry=Path("./registry").resolve(),
             workspace=workspace_root,
         ),
-        title=__app.title,
+        title=_app.title,
+    )
+    _app.state.database = async_sessionmaker(
+        bind=database_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autoflush=False,
     )
 
     yield
     # cleanup
 
 
-app = _app()
+app = _create_app()

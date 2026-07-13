@@ -1,23 +1,13 @@
-from typing import Iterable
-
 from openai import Omit
 from openai.types import (
     ResponseFormatJSONObject,
     ResponseFormatJSONSchema,
     ResponseFormatText,
 )
-from openai.types.chat import (
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionDeveloperMessageParam,
-    ChatCompletionFunctionMessageParam,
-    ChatCompletionSystemMessageParam,
-    ChatCompletionToolMessageParam,
-    ChatCompletionUserMessageParam,
-)
 
-from api.dtos.agents import AgentChatResponseDTO
+from api.dtos.agents import AgentChatResponseDTO, ConversationMessageDTO
 from api.services.agents import AbstractAgentService
-from api.utilities import datetime
+from api.utilities.datetime import now
 
 
 class MockAgentService(AbstractAgentService):
@@ -31,21 +21,14 @@ class MockAgentService(AbstractAgentService):
     ##
     async def chat(
         self,
-        messages: Iterable[
-            ChatCompletionAssistantMessageParam
-            | ChatCompletionDeveloperMessageParam
-            | ChatCompletionFunctionMessageParam
-            | ChatCompletionSystemMessageParam
-            | ChatCompletionToolMessageParam
-            | ChatCompletionUserMessageParam
-        ],
+        messages: list[ConversationMessageDTO],
         temperature: float = 0.1,
         response_format: ResponseFormatText | ResponseFormatJSONSchema | ResponseFormatJSONObject | Omit | None = None,
     ) -> AgentChatResponseDTO:
         return AgentChatResponseDTO(
             content=self._chat_response or "I am unable to help you with that request.",
-            created_at=datetime.timestamp(),
-            model=self._model,
+            created_at=now(),
+            model=self.model(),
             provider=self.provider(),
             raw_response={},
         )

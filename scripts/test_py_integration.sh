@@ -4,9 +4,11 @@ SCRIPT_DIR=$(dirname "${0}")
 
 source "${SCRIPT_DIR}/_set_vars.sh"
 
-##
 # Starts the necessary Docker services and runs integration tests.
-##
+#
+#
+# Examples
+#   ./entrypoint.sh
 function main {
   _set_vars
 

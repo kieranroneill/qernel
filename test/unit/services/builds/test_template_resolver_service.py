@@ -4,8 +4,7 @@ import pytest
 
 from api.dtos.builds import TemplateIntentDTO, TemplateResolutionDTO
 from api.dtos.system import RootConfigDTO
-
-from .template_resolver_service import TemplateResolverService
+from api.services.builds import TemplateResolverService
 
 
 @pytest.fixture

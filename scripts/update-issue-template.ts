@@ -34,7 +34,7 @@ function main(version: string): void {
 
   if (!version) {
     console.error(
-      `${chalk.red('[ERROR]')}: no version specified, use: node scripts/update-issue-templates.js [version]"`
+      `${chalk.red('[ERROR]')}: no version specified, use: "tsx scripts/update-issue-templates.js [version]"`
     );
     process.exit(1);
   }

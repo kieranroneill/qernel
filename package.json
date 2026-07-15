@@ -1,5 +1,6 @@
 {
   "name": "qernel",
+  "version": "1.0.0",
   "private": true,
   "description": "Qernel is a local AI workspace for generating, adapting, and shipping software faster.",
   "repository": {

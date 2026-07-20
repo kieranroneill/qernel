@@ -1,3 +1,4 @@
+import secrets
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -21,6 +22,14 @@ class AuthTransactionDTO:
             next_path=data["next_path"],
             state=data["state"],
         )
+
+    @classmethod
+    def generate_code_verifier(cls) -> str:
+        return secrets.token_urlsafe(64)
+
+    @classmethod
+    def generate_state(cls) -> str:
+        return secrets.token_urlsafe(32)
 
     def to_dict(self) -> dict:
         return {

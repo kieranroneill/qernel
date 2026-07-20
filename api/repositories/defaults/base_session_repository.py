@@ -29,9 +29,11 @@ class BaseSessionRepository(ABC, Generic[DTO]):
         raise NotImplementedError
 
     async def delete_by_id(self, _id: str) -> bool:
-        await self._session_store.delete(self._key(_id))
+        key = self._key(_id)
 
-        self._logger.debug('deleted "%s"', self._key(_id))
+        await self._session_store.delete(key)
+
+        self._logger.debug('deleted "%s"', key)
 
         return True
 

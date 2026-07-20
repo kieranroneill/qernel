@@ -27,6 +27,8 @@ def _create_app() -> FastAPI:
     _app = FastAPI(lifespan=_lifespan, title=f"{app_title} API")
 
     # /api
+    # /api/auth
+    _app.include_router(routers.auth.router)
     # /api/builds
     _app.include_router(routers.builds.router)
     # /health

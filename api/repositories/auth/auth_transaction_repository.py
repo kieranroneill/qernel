@@ -21,9 +21,10 @@ class AuthTransactionRepository(BaseSessionRepository[AuthTransactionDTO]):
             mapping=dto.to_dict(),
         )
 
+        # add a ttl to delete after a ste time
         await self._session_store.expire(key, AUTH_TRANSACTION_TTL_SECONDS)
 
-        self._logger.debug('added "%s"', dto.id)
+        self._logger.debug('added "%s"', key)
 
         return dto
 

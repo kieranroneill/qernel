@@ -5,10 +5,10 @@ from sqlalchemy.orm import selectinload
 
 from api.dtos.builds import BuildDTO
 from api.models.builds import BuildModel
-from api.repositories.defaults import BaseRepository
+from api.repositories.defaults import BaseDatabaseRepository
 
 
-class BuildRepository(BaseRepository[BuildModel, BuildDTO]):
+class BuildRepository(BaseDatabaseRepository[BuildModel, BuildDTO]):
     ##
     # private methods
     ##

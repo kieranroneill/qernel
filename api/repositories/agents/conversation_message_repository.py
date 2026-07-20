@@ -2,10 +2,10 @@ from uuid import UUID
 
 from api.dtos.agents import ConversationMessageDTO
 from api.models.agents import ConversationMessageModel
-from api.repositories.defaults import BaseRepository
+from api.repositories.defaults import BaseDatabaseRepository
 
 
-class ConversationMessageRepository(BaseRepository[ConversationMessageModel, ConversationMessageDTO]):
+class ConversationMessageRepository(BaseDatabaseRepository[ConversationMessageModel, ConversationMessageDTO]):
     ##
     # private methods
     ##

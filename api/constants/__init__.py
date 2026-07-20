@@ -1,3 +1,4 @@
+from .auth import AUTH_TRANSACTION_TTL_SECONDS
 from .builds import (
     APP_KINDS,
     AUTH_PREFERENCES,
@@ -9,6 +10,7 @@ from .builds import (
 
 __all__ = [
     "APP_KINDS",
+    "AUTH_TRANSACTION_TTL_SECONDS",
     "AUTH_PREFERENCES",
     "BACKEND_FRAMEWORKS",
     "DATABASES",

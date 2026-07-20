@@ -11,7 +11,7 @@ Model = TypeVar("Model")
 DTO = TypeVar("DTO")
 
 
-class BaseRepository(ABC, Generic[Model, DTO]):
+class BaseDatabaseRepository(ABC, Generic[Model, DTO]):
     def __init__(self, session: AsyncSession, logger: Logger | None = None) -> None:
         self._session = session
         self._logger = logger or get_logger()

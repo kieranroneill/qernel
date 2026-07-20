@@ -99,9 +99,7 @@ create_migration:
 		-f ./deployments/compose.development.yml \
 	 	-p qernel-dev \
 		 run \
-		--build \
-	 	--rm api \
-		alembic revision --autogenerate -m "$(MESSAGE)"
+	 	--rm create_migrations
 
 ###
 # formatting

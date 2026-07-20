@@ -1,3 +1,3 @@
-from .auth_transaction_repository import AuthTransactionRepository
+from .github_oauth_handshake_repository import GitHubOAuthHandshakeRepository
 
-__all__ = ["AuthTransactionRepository"]
+__all__ = ["GitHubOAuthHandshakeRepository"]

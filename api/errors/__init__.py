@@ -1,3 +1,3 @@
-from . import agents, defaults, general, templates
+from . import agents, auth, defaults, general, templates, users
 
-__all__ = ["agents", "defaults", "general", "templates"]
+__all__ = ["agents", "auth", "defaults", "general", "templates", "users"]

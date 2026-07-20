@@ -1,3 +1,3 @@
-from . import agents, auth, builds, system
+from . import agents, auth, builds, system, users
 
-__all__ = ["agents", "auth", "builds", "system"]
+__all__ = ["agents", "auth", "builds", "system", "users"]

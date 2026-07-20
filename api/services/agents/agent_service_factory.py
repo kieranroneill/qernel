@@ -1,6 +1,6 @@
 import logging
 
-from api.dtos.system import ModelConfigDTO
+from api.dtos.agents import ModelConfigDTO
 from api.errors.agents import ModelNotSupportedError
 
 from .abstract_agent_service import AbstractAgentService

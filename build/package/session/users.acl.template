@@ -1,2 +1,2 @@
 user default off
-user ${REDIS_USERNAME} on >${REDIS_PASSWORD} ~auth_transaction:* ~session:* +@hash +expire +ttl +pttl +del +ping
+user ${REDIS_USERNAME} on >${REDIS_PASSWORD} ~github_oauth_handshake:* ~session:* +@hash +expire +ttl +pttl +del +ping

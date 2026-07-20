@@ -81,6 +81,28 @@ services:
   # storage
   ###
 
+  create_migrations:
+    command: sh -lc "pip install --no-cache-dir -r dev-requirements.txt && alembic revision --autogenerate -m \"$MESSAGE\""
+    container_name: qernel_create_migrations_dev
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qernel}
+      POSTGRES_HOST: ${POSTGRES_HOST:-database}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    image: python:3.11-slim
+    networks:
+      - qernel_network_dev
+    volumes:
+      - ../alembic.ini:/app/alembic.ini:ro
+      - ../api:/app/api:ro
+      - ../migrations:/app/migrations:cached
+      - ../dev-requirements.txt:/app/dev-requirements.txt:ro
+    working_dir: /app
+
   database:
     container_name: qernel_database_dev
     image: postgres:16-alpine

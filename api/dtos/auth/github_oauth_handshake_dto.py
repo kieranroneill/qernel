@@ -1,4 +1,3 @@
-import secrets
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -6,7 +5,7 @@ from api.utilities.datetime import from_iso_string, to_iso_string
 
 
 @dataclass(slots=True)
-class AuthTransactionDTO:
+class GitHubOAuthHandshakeDTO:
     created_at: datetime
     code_verifier: str
     id: str
@@ -14,7 +13,7 @@ class AuthTransactionDTO:
     state: str
 
     @classmethod
-    def from_dict(cls, data: dict) -> "AuthTransactionDTO":
+    def from_dict(cls, data: dict) -> "GitHubOAuthHandshakeDTO":
         return cls(
             id=data["id"],
             created_at=from_iso_string(data["created_at"]),
@@ -22,14 +21,6 @@ class AuthTransactionDTO:
             next_path=data["next_path"],
             state=data["state"],
         )
-
-    @classmethod
-    def generate_code_verifier(cls) -> str:
-        return secrets.token_urlsafe(64)
-
-    @classmethod
-    def generate_state(cls) -> str:
-        return secrets.token_urlsafe(32)
 
     def to_dict(self) -> dict:
         return {

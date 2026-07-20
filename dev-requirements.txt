@@ -5,6 +5,7 @@ isort==8.0.1
 # database
 alembic==1.18.5
 psycopg[binary]==3.3.4
+sqlalchemy==2.0.50
 # testing
 pytest==9.1.1
 pytest-asyncio==1.4.0

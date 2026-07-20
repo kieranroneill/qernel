@@ -12,9 +12,9 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from api import routers
+from api.dtos.agents import ModelConfigDTO
+from api.dtos.auth import AuthConfigDTO, GitHubOAuthConfigDTO
 from api.dtos.system import (
-    AuthConfigDTO,
-    ModelConfigDTO,
     RootConfigDTO,
     SystemConfigDTO,
 )
@@ -53,11 +53,12 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     # attach dependencies
     _app.state.config = SystemConfigDTO(
         auth=AuthConfigDTO(
-            github_client_id=os.environ["GITHUB_CLIENT_ID"],
-            github_client_secret=os.environ["GITHUB_CLIENT_SECRET"],
-            github_redirect_uri=os.environ["GITHUB_REDIRECT_URI"],
-            github_scope=os.environ["GITHUB_SCOPE"],
-            session_cookie_name=os.environ["SESSION_COOKIE_NAME"],
+            github=GitHubOAuthConfigDTO(
+                client_id=os.environ["GITHUB_CLIENT_ID"],
+                client_secret=os.environ["GITHUB_CLIENT_SECRET"],
+                redirect_uri=os.environ["GITHUB_REDIRECT_URI"],
+                scope=os.environ["GITHUB_SCOPE"],
+            ),
             session_secret=os.environ["SESSION_SECRET"],
         ),
         model=ModelConfigDTO(

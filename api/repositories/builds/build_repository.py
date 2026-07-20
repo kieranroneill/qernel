@@ -21,7 +21,7 @@ class BuildRepository(BaseDatabaseRepository[BuildModel, BuildDTO]):
 
     async def _to_dto(self, model: BuildModel) -> BuildDTO:
         stmt = select(BuildModel).options(selectinload(BuildModel.messages)).where(BuildModel.id == model.id)
-        result = await self._session.execute(stmt)
+        result = await self._database.execute(stmt)
         _model = result.scalar_one()
 
         return BuildDTO.from_model(_model)
@@ -56,7 +56,7 @@ class BuildRepository(BaseDatabaseRepository[BuildModel, BuildDTO]):
         return result
 
     async def update(self, dto: BuildDTO) -> BuildDTO | None:
-        model = await self._session.get(self._model_type, dto.id)
+        model = await self._database.get(self._model_type, dto.id)
 
         if model is None:
             return None
@@ -72,10 +72,10 @@ class BuildRepository(BaseDatabaseRepository[BuildModel, BuildDTO]):
         model.template_id = dto.template_id
 
         try:
-            await self._session.commit()
-            await self._session.refresh(model)
+            await self._database.commit()
+            await self._database.refresh(model)
         except Exception:
-            await self._session.rollback()
+            await self._database.rollback()
             raise
 
         self._logger.debug('updated "%s" entry: "%s"', BuildModel, model.id)

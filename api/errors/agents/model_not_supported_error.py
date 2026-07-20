@@ -13,7 +13,7 @@ class ModelNotSupportedError(BaseError):
     def to_http_exception(self, status_code: int) -> HTTPException:
         return HTTPException(
             detail={
-                "code": self.code,
+                "code": self.code.value,
                 "message": self.message,
                 "provider": self.provider,
             },

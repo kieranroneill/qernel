@@ -21,10 +21,11 @@
 * [2. Usage](#-2-usage)
   - [2.1. With Docker (Recommended)](#21-with-docker-recommended)
     - [2.1.1. Requirements](#211-requirements)
-    - [2.1.2. Start Docker](#212-start-docker)
+    - [2.1.2. Set Up Environment](#212-set-up-environment)
+    - [2.1.3. Start Docker](#213-start-docker)
   - [2.2. Manual](#22-manual)
     - [2.2.1. Requirements](#221-requirements)
-    - [2.2.2. Setup](#222-setup)
+    - [2.2.2. Set Up Environment](#222-set-up-environment)
     - [2.2.3. Start the API](#223-start-the-api)
 * [3. Development](#-3-development)
   - [3.1. With Docker (Recommended)](#31-with-docker-recommended)
@@ -97,7 +98,17 @@
 
 <sup>[Back to top ^][table-of-contents]</sup>
 
-#### 2.1.2. Start Docker
+#### 2.1.2. Set Up Environment
+
+1. Create a new file `.env.local` at the project root.
+
+2. Add and fill the following values:
+* `GITHUB_CLIENT_ID`
+* `GITHUB_CLIENT_SECRET`
+
+<sup>[Back to top ^][table-of-contents]</sup>
+
+#### 2.1.3. Start Docker
 
 1. Using Docker compose, you can run the orchestration file using:
 
@@ -116,9 +127,15 @@ $ make start
 
 <sup>[Back to top ^][table-of-contents]</sup>
 
-#### 2.2.2. Setup
+#### 2.2.2. Set Up Environment
 
-Install the dependencies and tools:
+1. Create a new file `.env.local` at the project root.
+
+2. Add and fill the following values:
+* `GITHUB_CLIENT_ID`
+* `GITHUB_CLIENT_SECRET`
+
+3. Install the dependencies and tools:
 
 ```bash
 $ make install

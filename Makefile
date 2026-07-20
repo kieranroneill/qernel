@@ -41,6 +41,7 @@ dev:
 	 	-f ./deployments/compose.development.yml \
 	 	-p qernel-dev \
 	 	--env-file .env.dev \
+	 	--env-file .env.local \
 		up \
 		--build
 

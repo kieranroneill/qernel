@@ -3,7 +3,8 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.dependencies import database, system_config
+from api.dependencies.configs import system_config
+from api.dependencies.storage import database
 from api.dtos.builds import BuildDTO
 from api.dtos.system import SystemConfigDTO
 from api.errors.defaults import BaseError

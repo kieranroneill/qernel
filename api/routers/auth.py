@@ -6,7 +6,7 @@ from api.constants import (
     SESSION_COOKIE_NAME,
 )
 from api.controllers.auth import GitHubOAuthController
-from api.dependencies import github_oauth_controller
+from api.dependencies.auth import github_oauth_controller
 from api.errors.auth import (
     GitHubOAuthCookieNotFoundError,
     UnauthorizedError,
@@ -23,7 +23,7 @@ from api.utilities.logging import get_logger
 router = APIRouter(prefix="/api/auth", tags=["auth", "github"])
 
 
-@router.post("/github/complete", response_model=AuthGitHubStartResponseBodySchema)
+@router.post("/github/complete")
 async def auth_github_complete(
     body: AuthGitHubCompleteRequestBodySchema,
     request: Request,
@@ -104,5 +104,6 @@ async def auth_github_start(
 async def auth_logout(response: Response) -> Response:
     # delete cookies
     response.delete_cookie(GITHUB_OAUTH_HANDSHAKE_COOKIE_NAME, path="/")
+    response.delete_cookie(SESSION_COOKIE_NAME)
 
     return response

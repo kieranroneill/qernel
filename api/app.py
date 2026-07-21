@@ -18,6 +18,7 @@ from api.dtos.system import (
     RootConfigDTO,
     SystemConfigDTO,
 )
+from api.middlewares.auth import AuthContextMiddleware
 from api.utilities.database import url as database_url
 from api.utilities.session import url as session_url
 
@@ -74,7 +75,7 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
         ),
         title=_app.title,
     )
-    _app.state.database = async_sessionmaker(
+    _app.state.database_session_factory = async_sessionmaker(
         bind=database_engine,
         class_=AsyncSession,
         expire_on_commit=False,
@@ -82,12 +83,19 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     )
     _app.state.session_store = session_store
 
+    # add middlewares
+    _app.add_middleware(
+        AuthContextMiddleware,
+        database_session_factory=_app.state.database_session_factory,
+        session_store=_app.state.session_store,
+    )
+
     try:
         yield
+    # cleanup
     finally:
         await session_store.aclose()
         await database_engine.dispose()
-    # cleanup
 
 
 app = _create_app()

@@ -1,4 +1,3 @@
-from .database import database
-from .system_config import system_config
+from . import auth, configs, storage
 
-__all__ = ["database", "system_config"]
+__all__ = ["auth", "configs", "storage"]

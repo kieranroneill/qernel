@@ -2,6 +2,11 @@ from enum import Enum
 
 
 class ErrorCodeEnum(Enum):
+    # auth
+    UNAUTHORIZED_ERROR = 4001
+    FORBIDDEN_ERROR = 4003
+    INVALID_GITHUB_OAUTH_COOKIE_ERROR = 4100
+    GITHUB_OAUTH_COOKIE_NOT_FOUND_ERROR = 4101
     # chat
     CHAT_USER_CANCELLED_ERROR = 1000
     # general
@@ -11,3 +16,5 @@ class ErrorCodeEnum(Enum):
     MESSAGE_ROLE_NOT_SUPPORTED_ERROR = 6001
     # templates
     TEMPLATE_NOT_FOUND_ERROR = 2000
+    # users
+    FAILED_TO_UPDATE_USER_ERROR = 3003

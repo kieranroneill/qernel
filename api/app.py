@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -11,8 +12,15 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from api import routers
-from api.dtos.system import ModelConfigDTO, RootConfigDTO, SystemConfigDTO
+from api.dtos.agents import ModelConfigDTO
+from api.dtos.auth import AuthConfigDTO, GitHubOAuthConfigDTO
+from api.dtos.system import (
+    RootConfigDTO,
+    SystemConfigDTO,
+)
+from api.middlewares.auth import AuthContextMiddleware
 from api.utilities.database import url as database_url
+from api.utilities.session import url as session_url
 
 
 def _create_app() -> FastAPI:
@@ -20,10 +28,15 @@ def _create_app() -> FastAPI:
     _app = FastAPI(lifespan=_lifespan, title=f"{app_title} API")
 
     # /api
+    # /api/auth
+    _app.include_router(routers.auth.router)
     # /api/builds
     _app.include_router(routers.builds.router)
     # /health
     _app.include_router(routers.health.router)
+
+    # add middlewares
+    _app.add_middleware(AuthContextMiddleware)
 
     return _app
 
@@ -31,6 +44,11 @@ def _create_app() -> FastAPI:
 @asynccontextmanager
 async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     database_engine = create_async_engine(database_url(), pool_pre_ping=True)
+    session_store = Redis.from_url(
+        session_url(),
+        encoding="utf-8",
+        decode_responses=True,
+    )
     workspace_root = Path("./.workspace").resolve()
 
     # make workspace directory if it doesn't exist
@@ -38,6 +56,15 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
 
     # attach dependencies
     _app.state.config = SystemConfigDTO(
+        auth=AuthConfigDTO(
+            github=GitHubOAuthConfigDTO(
+                client_id=os.environ["GITHUB_CLIENT_ID"],
+                client_secret=os.environ["GITHUB_CLIENT_SECRET"],
+                redirect_uri=os.environ["GITHUB_REDIRECT_URI"],
+                scope=os.environ["GITHUB_SCOPE"],
+            ),
+            session_secret=os.environ["SESSION_SECRET"],
+        ),
         model=ModelConfigDTO(
             api_key=os.environ["MODEL_API_KEY"] or None,
             base_url=os.environ["MODEL_BASE_URL"],
@@ -51,15 +78,20 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
         ),
         title=_app.title,
     )
-    _app.state.database = async_sessionmaker(
+    _app.state.database_session_factory = async_sessionmaker(
         bind=database_engine,
         class_=AsyncSession,
         expire_on_commit=False,
         autoflush=False,
     )
+    _app.state.session_store = session_store
 
-    yield
+    try:
+        yield
     # cleanup
+    finally:
+        await session_store.aclose()
+        await database_engine.dispose()
 
 
 app = _create_app()

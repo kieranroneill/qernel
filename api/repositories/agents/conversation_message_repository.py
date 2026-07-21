@@ -2,10 +2,10 @@ from uuid import UUID
 
 from api.dtos.agents import ConversationMessageDTO
 from api.models.agents import ConversationMessageModel
-from api.repositories.defaults import BaseRepository
+from api.repositories.defaults import BaseDatabaseRepository
 
 
-class ConversationMessageRepository(BaseRepository[ConversationMessageModel, ConversationMessageDTO]):
+class ConversationMessageRepository(BaseDatabaseRepository[ConversationMessageModel, ConversationMessageDTO]):
     ##
     # private methods
     ##
@@ -52,7 +52,7 @@ class ConversationMessageRepository(BaseRepository[ConversationMessageModel, Con
         self,
         dto: ConversationMessageDTO,
     ) -> ConversationMessageDTO | None:
-        model = await self._session.get(self._model_type, dto.id)
+        model = await self._database.get(self._model_type, dto.id)
 
         if model is None:
             return None
@@ -72,10 +72,10 @@ class ConversationMessageRepository(BaseRepository[ConversationMessageModel, Con
         model.total_tokens = dto.total_tokens
 
         try:
-            await self._session.commit()
-            await self._session.refresh(model)
+            await self._database.commit()
+            await self._database.refresh(model)
         except Exception:
-            await self._session.rollback()
+            await self._database.rollback()
             raise
 
         self._logger.debug('updated "%s" entry: "%s"', ConversationMessageModel, model.id)

@@ -12,7 +12,6 @@ from api.constants import (
 )
 from api.dtos.agents import ConversationMessageDTO
 from api.dtos.builds import (
-    IntentFromPromptResultDTO,
     TemplateIntentDTO,
     TemplateResolutionCandidateDTO,
     TemplateResolutionDTO,
@@ -159,7 +158,9 @@ class TemplateResolverService:
     ##
     # public methods
     ##
-    async def intent_from_prompt(self, build_id: UUID, prompt: str) -> IntentFromPromptResultDTO:
+    async def intent_from_prompt(
+        self, build_id: UUID, prompt: str
+    ) -> tuple[TemplateIntentDTO, list[ConversationMessageDTO]]:
         _now = now()
         messages = [
             ConversationMessageDTO(
@@ -243,10 +244,7 @@ Rules:
 
         self._logger.debug(f"found template intent '{data}'")
 
-        return IntentFromPromptResultDTO(
-            intent=TemplateIntentDTO.from_schema(TemplateIntentSchema.model_validate(data)),
-            messages=messages,
-        )
+        return TemplateIntentDTO.from_schema(TemplateIntentSchema.model_validate(data)), messages
 
     async def resolve_from_intent(self, intent: TemplateIntentDTO) -> TemplateResolutionDTO:
         manifests = self._load_template_manifests()

@@ -5,7 +5,7 @@ from .template_intent_schema import TemplateIntentSchema
 from .template_resolution_schema import TemplateResolutionSchema
 
 
-class BuildResolveResponseSchema(BaseSchema):
+class BuildResolveResponseBodySchema(BaseSchema):
     build: BuildSchema
     intent: TemplateIntentSchema
     resolution: TemplateResolutionSchema

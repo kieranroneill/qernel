@@ -1,5 +1,5 @@
 from api.schemas.defaults import BaseSchema
 
 
-class BuildResolveRequestSchema(BaseSchema):
+class BuildResolveRequestBodySchema(BaseSchema):
     prompt: str

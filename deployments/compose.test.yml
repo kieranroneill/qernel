@@ -16,6 +16,24 @@ services:
     ports:
       - '${POSTGRES_PORT:-5433}:5432'
 
+  session:
+    build:
+      context: ../
+      dockerfile: ./build/package/session/Dockerfile
+    container_name: qernel_session_test
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+      REDIS_USERNAME: ${REDIS_USERNAME:-redis}
+    healthcheck:
+      test: [ 'CMD-SHELL', 'redis-cli --user ${REDIS_USERNAME:-redis} --pass ${REDIS_PASSWORD:-password} ping | grep PONG' ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - qernel_network_test
+    ports:
+      - '${REDIS_PORT:-6380}:6379'
+
 networks:
   qernel_network_test:
     name: qernel_network_test

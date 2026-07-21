@@ -1,3 +1,3 @@
-from . import agents, builds, defaults, health
+from . import agents, auth, builds, defaults, github, health, users
 
-__all__ = ["agents", "builds", "defaults", "health"]
+__all__ = ["agents", "auth", "builds", "defaults", "github", "health", "users"]

@@ -11,9 +11,9 @@ Model = TypeVar("Model")
 DTO = TypeVar("DTO")
 
 
-class BaseRepository(ABC, Generic[Model, DTO]):
-    def __init__(self, session: AsyncSession, logger: Logger | None = None) -> None:
-        self._session = session
+class BaseDatabaseRepository(ABC, Generic[Model, DTO]):
+    def __init__(self, database: AsyncSession, logger: Logger | None = None) -> None:
+        self._database = database
         self._logger = logger or get_logger()
 
     ##
@@ -39,11 +39,11 @@ class BaseRepository(ABC, Generic[Model, DTO]):
         model = self._to_model(dto)
 
         try:
-            self._session.add(model)
-            await self._session.commit()
-            await self._session.refresh(model)
+            self._database.add(model)
+            await self._database.commit()
+            await self._database.refresh(model)
         except Exception:
-            await self._session.rollback()
+            await self._database.rollback()
             raise
 
         return await self._to_dto(model)
@@ -55,13 +55,13 @@ class BaseRepository(ABC, Generic[Model, DTO]):
         models = [self._to_model(dto) for dto in dtos]
 
         try:
-            self._session.add_all(models)
-            await self._session.commit()
+            self._database.add_all(models)
+            await self._database.commit()
 
             for model in models:
-                await self._session.refresh(model)
+                await self._database.refresh(model)
         except Exception:
-            await self._session.rollback()
+            await self._database.rollback()
             raise
 
         self._logger.debug(f'added multiple "{self._model_type}": [{[model.id for model in models]}]')
@@ -69,22 +69,22 @@ class BaseRepository(ABC, Generic[Model, DTO]):
         return [await self._to_dto(model) for model in models]
 
     async def delete_by_id(self, _id: UUID) -> bool:
-        model = await self._session.get(self._model_type, _id)
+        model = await self._database.get(self._model_type, _id)
 
         if model is None:
             return False
 
         try:
-            await self._session.delete(model)
-            await self._session.commit()
+            await self._database.delete(model)
+            await self._database.commit()
         except Exception:
-            await self._session.rollback()
+            await self._database.rollback()
             raise
 
         return True
 
     async def get_by_id(self, _id: UUID) -> DTO | None:
-        model = await self._session.get(self._model_type, _id)
+        model = await self._database.get(self._model_type, _id)
 
         if model is None:
             return None

@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     Enum,
+    ForeignKey,
     Index,
     String,
     Text,
@@ -23,6 +24,7 @@ from api.models.defaults.base_model import BaseModel
 
 if TYPE_CHECKING:
     from api.models.agents.conversation_message_model import ConversationMessageModel
+    from api.models.users.user_model import UserModel
 
 
 class BuildModel(BaseModel):
@@ -38,6 +40,13 @@ class BuildModel(BaseModel):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
+    )
+
+    # foreign keys
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     # data
@@ -68,4 +77,8 @@ class BuildModel(BaseModel):
     messages: Mapped[list["ConversationMessageModel"]] = relationship(
         back_populates="build",
         cascade="all, delete-orphan",
+    )
+    user: Mapped["UserModel"] = relationship(
+        back_populates="builds",
+        foreign_keys=[user_id],
     )

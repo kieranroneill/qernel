@@ -69,11 +69,9 @@ database_downgrade:
 database_downgrade_dev:
 	docker compose \
 		-f ./deployments/compose.development.yml \
-	 	-p qernel-dev \
-		run \
-		--build \
-		--rm api \
-		alembic downgrade -1
+		-p qernel-dev \
+		 run \
+		--rm database_downgrade
 
 database_upgrade:
 	docker compose \
@@ -87,11 +85,9 @@ database_upgrade:
 database_upgrade_dev:
 	docker compose \
 		-f ./deployments/compose.development.yml \
-	 	-p qernel-dev \
-		run \
-		--build \
-		--rm api \
-		alembic upgrade head
+		-p qernel-dev \
+		 run \
+		--rm database_upgrade
 
 create_migrations:
 	test -n "$(MESSAGE)" || (echo 'Usage: make create_migrations MESSAGE="adds boats table"' && exit 1)

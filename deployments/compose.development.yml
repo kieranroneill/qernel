@@ -123,6 +123,52 @@ services:
     volumes:
       - ../.database:/var/lib/postgresql/data
 
+  database_downgrade:
+    command: sh -lc "pip install --no-cache-dir -r dev-requirements.txt && alembic downgrade -1"
+    container_name: qernel_database_downgrade_dev
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qernel}
+      POSTGRES_HOST: ${POSTGRES_HOST:-database}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    image: python:3.11-slim
+    networks:
+      - qernel_network_dev
+    profiles: [ 'migration' ]
+    volumes:
+      - ../alembic.ini:/app/alembic.ini:ro
+      - ../api:/app/api:ro
+      - ../migrations:/app/migrations:ro
+      - ../dev-requirements.txt:/app/dev-requirements.txt:ro
+    working_dir: /app
+
+  database_upgrade:
+    command: sh -lc "pip install --no-cache-dir -r dev-requirements.txt && alembic upgrade head"
+    container_name: qernel_database_upgrade_dev
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qernel}
+      POSTGRES_HOST: ${POSTGRES_HOST:-database}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    image: python:3.11-slim
+    networks:
+      - qernel_network_dev
+    profiles: [ 'migration' ]
+    volumes:
+      - ../alembic.ini:/app/alembic.ini:ro
+      - ../api:/app/api:ro
+      - ../migrations:/app/migrations:ro
+      - ../dev-requirements.txt:/app/dev-requirements.txt:ro
+    working_dir: /app
+
   session:
     build:
       context: ../

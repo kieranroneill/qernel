@@ -19,6 +19,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.models.defaults.base_model import BaseModel
 
 if TYPE_CHECKING:
+    from api.models.builds.build_model import BuildModel
     from api.models.users.email_model import EmailModel
     from api.models.users.github_user_model import GitHubUserModel
 
@@ -51,6 +52,11 @@ class UserModel(BaseModel):
     )
 
     # relationships
+    builds: Mapped[list["BuildModel"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        foreign_keys="BuildModel.user_id",
+    )
     emails: Mapped[list["EmailModel"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",

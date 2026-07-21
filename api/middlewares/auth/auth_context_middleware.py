@@ -92,12 +92,12 @@ class AuthContextMiddleware(BaseHTTPMiddleware):
 
             # set the new session cookie with the new session id
             response.set_cookie(
-                key=SESSION_COOKIE_NAME,
-                value=str(session.id),
                 httponly=True,
-                secure=True,
-                samesite="lax",
+                key=SESSION_COOKIE_NAME,
                 max_age=SESSION_TTL_SECONDS,
+                samesite="lax",
+                secure=True,
+                value=str(session.id),
             )
 
             return response

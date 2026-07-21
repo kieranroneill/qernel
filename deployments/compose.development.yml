@@ -52,6 +52,28 @@ services:
       - ../pyproject.toml:/app/pyproject.toml:cached
       - ../registry:/app/registry:cached
 
+  web:
+    build:
+      context: ../
+      dockerfile: ./build/package/web/Dockerfile.development
+    container_name: qernel_web_dev
+    depends_on:
+      - api
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://api:3000}
+      NEXT_PUBLIC_APP_TITLE: ${APP_TITLE:-Qernel}
+      NEXT_PUBLIC_LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
+      NODE_ENV: development
+    image: kieranroneill/qernel-web:development
+    networks:
+      - qernel_network_dev
+    ports:
+      - '8080:8080'
+    volumes:
+      - ../web:/app/web:cached
+      - ../package.json:/app/package.json:cached
+      - ../pnpm-lock.yaml:/app/pnpm-lock.yaml:cached
+
   ###
   # models
   ###

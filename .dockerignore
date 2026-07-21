@@ -443,6 +443,7 @@ cython_debug/
 #.idea/
 
 ### Project files
+.database/
 .model/
 .workspace/
 !build/

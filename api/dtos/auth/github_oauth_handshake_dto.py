@@ -9,7 +9,6 @@ class GitHubOAuthHandshakeDTO:
     created_at: datetime
     code_verifier: str
     id: str
-    next_path: str
     state: str
 
     @classmethod
@@ -18,7 +17,6 @@ class GitHubOAuthHandshakeDTO:
             id=data["id"],
             created_at=from_iso_string(data["created_at"]),
             code_verifier=data["code_verifier"],
-            next_path=data["next_path"],
             state=data["state"],
         )
 
@@ -27,6 +25,5 @@ class GitHubOAuthHandshakeDTO:
             "id": self.id,
             "created_at": to_iso_string(self.created_at),
             "code_verifier": self.code_verifier,
-            "next_path": self.next_path,
             "state": self.state,
         }

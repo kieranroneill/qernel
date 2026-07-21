@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 import httpx
 
 from api.dtos.auth import GitHubOAuthConfigDTO
-from api.schemas.github import GitHubEmailResponseSchema, GitHubProfileResponseSchema
+from api.schemas.github import GitHubProfileResponseSchema
 from api.utilities.logging import get_logger
 
 
@@ -66,35 +66,6 @@ class GitHubOAuthService:
     ##
     # public methods
     ##
-    async def fetch_emails(self, access_token: str) -> list[GitHubEmailResponseSchema]:
-        """
-        Fetches the authenticated user's email addresses from GitHub.
-
-        Endpoint: GET https://api.github.com/user/emails
-        Docs: https://docs.github.com/en/rest/users/emails#list-email-addresses-for-the-authenticated-user
-
-        Args:
-            access_token (str): A GitHub access token for the authenticated user.
-
-        Returns:
-            list[GitHubEmailResponseSchema]: Parsed GitHub email records.
-        """
-
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                "https://api.github.com/user/emails",
-                headers={
-                    "Authorization": f"Bearer {access_token}",
-                    "Accept": "application/vnd.github+json",
-                    "X-GitHub-Api-Version": "2026-03-10",
-                },
-            )
-            response.raise_for_status()
-
-            data = response.json()
-
-            return [GitHubEmailResponseSchema(**e) for e in data]
-
     async def fetch_profile(self, access_token: str) -> GitHubProfileResponseSchema:
         """
         Fetches the authenticated GitHub user's profile.
@@ -182,33 +153,3 @@ class GitHubOAuthService:
         }
 
         return f"https://github.com/login/oauth/authorize?{urlencode(query)}"
-
-    def resolve_primary_email(self, emails: list[GitHubEmailResponseSchema]) -> str:
-        """
-        Selects the best available email from the GitHub API response.
-
-        Args:
-            emails (list[GitHubEmailResponseSchema]): Email records returned by GitHub.
-
-        Returns:
-            str: The selected email address.
-
-        Raises:
-            ValueError: If no usable emails are returned from GitHub.
-        """
-
-        primary_verified = next(
-            (e.email for e in emails if e.email and e.verified),
-            None,
-        )
-        verified = next((e.email for e in emails if e.verified), None)
-        fallback = next((e.email for e in emails if e.email), None)
-
-        if primary_verified:
-            return primary_verified
-        if verified:
-            return verified
-        if fallback:
-            return fallback
-
-        raise ValueError("no usable emails returned from github")

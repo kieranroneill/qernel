@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import (
     Boolean,
     DateTime,
+    ForeignKey,
     Index,
     Text,
     func,
@@ -18,15 +19,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.models.defaults.base_model import BaseModel
 
 if TYPE_CHECKING:
+    from api.models.users.email_model import EmailModel
     from api.models.users.github_user_model import GitHubUserModel
 
 
 class UserModel(BaseModel):
     __tablename__ = "users"
-    __table_args__ = (
-        Index("ix_users_email", "email"),
-        Index("ix_users_active", "active"),
-    )
+    __table_args__ = (Index("ix_users_active", "active"),)
 
     # primary keys
     id: Mapped[uuid.UUID] = mapped_column(
@@ -35,18 +34,34 @@ class UserModel(BaseModel):
         default=uuid.uuid4,
     )
 
+    # foreign keys
+    primary_email_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("emails.id", ondelete="SET NULL"),
+        nullable=True,
+        unique=True,
+    )
+
     # data
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, server_default=true())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     display_name: Mapped[str | None] = mapped_column(Text, nullable=True)
-    email: Mapped[str] = mapped_column(Text, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, onupdate=func.now(), server_default=func.now()
     )
 
     # relationships
+    emails: Mapped[list["EmailModel"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
     github: Mapped["GitHubUserModel | None"] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
+        uselist=False,
+    )
+    primary_email: Mapped["EmailModel | None"] = relationship(
+        foreign_keys=[primary_email_id],
+        post_update=True,
         uselist=False,
     )

@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
 
+from sqlalchemy import inspect
+
 from api.dtos.agents import ConversationMessageDTO
 from api.enums.builds import BuildStageEnum
 from api.models.builds import BuildModel
@@ -18,7 +20,7 @@ class BuildDTO:
     error_message: str | None = None
     extra_data: dict = field(default_factory=dict)
     internal_notes: str | None = None
-    messages: list[ConversationMessageDTO] = field(default_factory=list)
+    messages: list[ConversationMessageDTO] | None = None
     project_name: str | None = None
     resolved_variables: dict = field(default_factory=dict)
     selected_feature_packs: list[str] = field(default_factory=list)
@@ -27,6 +29,12 @@ class BuildDTO:
 
     @classmethod
     def from_model(cls, model: BuildModel) -> "BuildDTO":
+        messages = (
+            None
+            if "messages" in inspect(model).unloaded
+            else [ConversationMessageDTO.from_model(message) for message in model.messages]
+        )
+
         return cls(
             id=model.id,
             active=model.active,
@@ -36,7 +44,7 @@ class BuildDTO:
             error_message=model.error_message,
             extra_data=dict(model.extra_data),
             internal_notes=model.internal_notes,
-            messages=[ConversationMessageDTO.from_model(message) for message in model.messages],
+            messages=messages,
             project_name=model.project_name,
             resolved_variables=dict(model.resolved_variables),
             selected_feature_packs=list(model.selected_feature_packs),
@@ -54,7 +62,7 @@ class BuildDTO:
             error_message=self.error_message,
             extra_data=dict(self.extra_data),
             internal_notes=self.internal_notes,
-            messages=[message.to_model() for message in self.messages],
+            messages=[message.to_model() for message in self.messages] if self.messages is not None else [],
             project_name=self.project_name,
             resolved_variables=dict(self.resolved_variables),
             selected_feature_packs=list(self.selected_feature_packs),
@@ -73,7 +81,11 @@ class BuildDTO:
             error_message=schema.error_message,
             extra_data=dict(schema.extra_data),
             internal_notes=schema.internal_notes,
-            messages=[ConversationMessageDTO.from_schema(message) for message in schema.messages],
+            messages=(
+                [ConversationMessageDTO.from_schema(message) for message in schema.messages]
+                if schema.messages is not None
+                else None
+            ),
             project_name=schema.project_name,
             resolved_variables=dict(schema.resolved_variables),
             selected_feature_packs=list(schema.selected_feature_packs),
@@ -91,7 +103,7 @@ class BuildDTO:
             error_message=self.error_message,
             extra_data=dict(self.extra_data),
             internal_notes=self.internal_notes,
-            messages=[message.to_schema() for message in self.messages],
+            messages=[message.to_schema() for message in self.messages] if self.messages is not None else None,
             project_name=self.project_name,
             resolved_variables=dict(self.resolved_variables),
             selected_feature_packs=list(self.selected_feature_packs),

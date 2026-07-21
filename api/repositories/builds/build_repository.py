@@ -20,8 +20,8 @@ class BuildRepository(BaseDatabaseRepository[BuildModel, BuildDTO]):
         return dto.to_model()
 
     async def _to_dto(self, model: BuildModel) -> BuildDTO:
-        stmt = select(BuildModel).options(selectinload(BuildModel.messages)).where(BuildModel.id == model.id)
-        result = await self._database.execute(stmt)
+        statement = select(BuildModel).where(BuildModel.id == model.id)
+        result = await self._database.execute(statement)
         _model = result.scalar_one()
 
         return BuildDTO.from_model(_model)
@@ -54,6 +54,20 @@ class BuildRepository(BaseDatabaseRepository[BuildModel, BuildDTO]):
             self._logger.debug('deleted "%s" entry: "%s"', BuildModel, _id)
 
         return result
+
+    async def get_all_by_user_id(self, user_id: UUID) -> list[BuildDTO]:
+        statement = select(BuildModel).where(BuildModel.user_id == user_id)
+        result = await self._database.execute(statement)
+        models = result.scalars().all()
+
+        return [BuildDTO.from_model(model) for model in models]
+
+    async def get_by_id_with_messages(self, _id: UUID) -> BuildDTO | None:
+        statement = select(BuildModel).options(selectinload(BuildModel.messages)).where(BuildModel.id == _id)
+        result = await self._database.execute(statement)
+        model = result.scalar_one_or_none()
+
+        return BuildDTO.from_model(model) if model else None
 
     async def update(self, dto: BuildDTO) -> BuildDTO | None:
         model = await self._database.get(self._model_type, dto.id)

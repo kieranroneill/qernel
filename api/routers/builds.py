@@ -1,50 +1,43 @@
-from uuid import uuid4
-
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.controllers.builds import BuildsController
+from api.dependencies.auth import requires_authentication
 from api.dependencies.configs import system_config
 from api.dependencies.storage import database
-from api.dtos.builds import BuildDTO
+from api.dtos.auth import AuthContextDTO
 from api.dtos.system import SystemConfigDTO
 from api.errors.defaults import BaseError
 from api.errors.general import InternalServerError
 from api.errors.templates import TemplateNotFoundError
-from api.repositories.builds import BuildRepository
 from api.schemas.builds import (
     BuildResolveRequestBodySchema,
     BuildResolveResponseBodySchema,
 )
-from api.services.agents import AgentServiceFactory
-from api.services.builds import TemplateResolverService
-from api.utilities.datetime import now
 from api.utilities.logging import get_logger
 
 router = APIRouter(prefix="/api/builds", tags=["builds"])
 
 
-@router.post("/resolve", response_model=BuildResolveResponseBodySchema)
+@router.post("/resolve", response_model=BuildResolveResponseBodySchema, status_code=status.HTTP_201_CREATED)
 async def build_resolve(
     body: BuildResolveRequestBodySchema,
+    auth_context: AuthContextDTO = Depends(requires_authentication),
     _database: AsyncSession = Depends(database),
     _system_config: SystemConfigDTO = Depends(system_config),
 ) -> BuildResolveResponseBodySchema:
     logger = get_logger()
 
     try:
-        agent_service = AgentServiceFactory.create(model_config=_system_config.model)
-        template_resolver_service = TemplateResolverService(
-            agent_service=agent_service, root_config=_system_config.roots
+        intent, resolution, build = await BuildsController(
+            database=_database,
+            logger=logger,
+            model_config=_system_config.model,
+            root_config=_system_config.roots,
+        ).resolve(
+            prompt=body.prompt,
+            user=auth_context.user,
         )
-        _now = now()
-        build = BuildDTO(
-            active=True,
-            id=uuid4(),
-            created_at=_now,
-            updated_at=_now,
-        )
-        intent_result = await template_resolver_service.intent_from_prompt(build_id=build.id, prompt=body.prompt)
-        template_resolution = await template_resolver_service.resolve_from_intent(intent=intent_result.intent)
     except TemplateNotFoundError:
         raise TemplateNotFoundError().to_http_exception(status_code=status.HTTP_404_NOT_FOUND)
     except BaseError as e:
@@ -54,12 +47,6 @@ async def build_resolve(
 
         raise InternalServerError().to_http_exception(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # add message to new build
-    build.messages = intent_result.messages
-
-    # add the build to the database (with the messages from the intent)
-    build = await BuildRepository(logger=logger, database=_database).add(build)
-
     return BuildResolveResponseBodySchema(
-        build=build.to_schema(), intent=intent_result.intent.to_schema(), resolution=template_resolution.to_schema()
+        build=build.to_schema(), intent=intent.to_schema(), resolution=resolution.to_schema()
     )

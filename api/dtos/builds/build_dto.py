@@ -14,6 +14,7 @@ class BuildDTO:
     active: bool
     created_at: datetime
     updated_at: datetime
+    user_id: UUID
     error_message: str | None = None
     extra_data: dict = field(default_factory=dict)
     internal_notes: str | None = None
@@ -40,6 +41,7 @@ class BuildDTO:
             resolved_variables=dict(model.resolved_variables),
             selected_feature_packs=list(model.selected_feature_packs),
             template_id=model.template_id,
+            user_id=model.user_id,
         )
 
     def to_model(self) -> BuildModel:
@@ -57,6 +59,7 @@ class BuildDTO:
             resolved_variables=dict(self.resolved_variables),
             selected_feature_packs=list(self.selected_feature_packs),
             template_id=self.template_id,
+            user_id=self.user_id,
         )
 
     @classmethod
@@ -75,6 +78,7 @@ class BuildDTO:
             resolved_variables=dict(schema.resolved_variables),
             selected_feature_packs=list(schema.selected_feature_packs),
             template_id=schema.template_id,
+            user_id=schema.user_id,
         )
 
     def to_schema(self) -> BuildSchema:
@@ -92,4 +96,5 @@ class BuildDTO:
             resolved_variables=dict(self.resolved_variables),
             selected_feature_packs=list(self.selected_feature_packs),
             template_id=self.template_id,
+            user_id=self.user_id,
         )

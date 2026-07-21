@@ -22,3 +22,4 @@ class BuildSchema(BaseSchema):
     stage: BuildStageEnum = BuildStageEnum.INITIATED
     template_id: str | None = None
     updated_at: datetime
+    user_id: UUID

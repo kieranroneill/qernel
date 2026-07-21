@@ -96,6 +96,7 @@ services:
     image: python:3.11-slim
     networks:
       - qernel_network_dev
+    profiles: ['migration']
     volumes:
       - ../alembic.ini:/app/alembic.ini:ro
       - ../api:/app/api:ro

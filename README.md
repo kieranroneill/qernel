@@ -202,7 +202,7 @@ Database migrations are managed with [Alembic](https://alembic.sqlalchemy.org/en
 Use the following commands to create, apply, or roll back migrations:
 
 ```shell
-make create_migration MESSAGE="adds boats_profiles table"
+make create_migrations MESSAGE="adds boats_profiles table"
 make database_upgrade
 make database_downgrade
 ```

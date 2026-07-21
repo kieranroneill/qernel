@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: start test
+.PHONY: create_migrations dev start test
 
 all: install
 
@@ -93,8 +93,8 @@ database_upgrade_dev:
 		--rm api \
 		alembic upgrade head
 
-create_migration:
-	test -n "$(MESSAGE)" || (echo 'Usage: make create_migration MESSAGE="adds boats table"' && exit 1)
+create_migrations:
+	test -n "$(MESSAGE)" || (echo 'Usage: make create_migrations MESSAGE="adds boats table"' && exit 1)
 	docker compose \
 		-f ./deployments/compose.development.yml \
 	 	-p qernel-dev \

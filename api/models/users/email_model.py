@@ -50,4 +50,4 @@ class EmailModel(BaseModel):
     verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default=false())
 
     # relationships
-    user: Mapped["UserModel"] = relationship(back_populates="emails")
+    user: Mapped["UserModel"] = relationship(back_populates="emails", foreign_keys=[user_id])

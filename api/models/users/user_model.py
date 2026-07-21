@@ -54,6 +54,7 @@ class UserModel(BaseModel):
     emails: Mapped[list["EmailModel"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
+        foreign_keys="EmailModel.user_id",
     )
     github: Mapped["GitHubUserModel | None"] = relationship(
         back_populates="user",

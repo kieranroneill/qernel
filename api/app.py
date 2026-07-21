@@ -35,6 +35,9 @@ def _create_app() -> FastAPI:
     # /health
     _app.include_router(routers.health.router)
 
+    # add middlewares
+    _app.add_middleware(AuthContextMiddleware)
+
     return _app
 
 
@@ -82,13 +85,6 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
         autoflush=False,
     )
     _app.state.session_store = session_store
-
-    # add middlewares
-    _app.add_middleware(
-        AuthContextMiddleware,
-        database_session_factory=_app.state.database_session_factory,
-        session_store=_app.state.session_store,
-    )
 
     try:
         yield

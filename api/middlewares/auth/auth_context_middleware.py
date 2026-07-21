@@ -20,15 +20,10 @@ class AuthContextMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app,
-        database_session_factory: async_sessionmaker[AsyncSession],
-        session_store: Redis,
     ):
         super().__init__(app)
 
-        logger = get_logger()
-        self._logger = logger
-        self._database_session_factory = database_session_factory
-        self._session_store = session_store
+        self._logger = get_logger()
 
     @classmethod
     def _delete_session_cookie_with_response(cls, response: Response) -> Response:
@@ -37,6 +32,8 @@ class AuthContextMiddleware(BaseHTTPMiddleware):
         return response
 
     async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+        database_session_factory: async_sessionmaker[AsyncSession] = request.app.state.database_session_factory
+        session_store: Redis = request.app.state.session_store
         request.state.auth_context = None
         session_id = request.cookies.get(SESSION_COOKIE_NAME)
 
@@ -45,7 +42,7 @@ class AuthContextMiddleware(BaseHTTPMiddleware):
 
             return await call_next(request)
 
-        session_repository = SessionRepository(logger=self._logger, session_store=self._session_store)
+        session_repository = SessionRepository(logger=self._logger, session_store=session_store)
         session = await session_repository.get_by_id(session_id)
 
         if not session:
@@ -54,7 +51,7 @@ class AuthContextMiddleware(BaseHTTPMiddleware):
             # delete the session cookie
             return AuthContextMiddleware._delete_session_cookie_with_response(response=await call_next(request))
 
-        async with self._database_session_factory() as database:
+        async with database_session_factory() as database:
             user_repository = UserRepository(database=database, logger=self._logger)
             user = await user_repository.get_by_id(session.user_id)
 

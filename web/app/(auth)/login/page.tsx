@@ -1,22 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 // components
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/common/ThemeToggle';
-import { apiService } from '@/services/api';
+import ColorSchemeToggle from '@/components/common/ColorSchemeToggle';
 
 // errors
 import type { BaseError } from '@/errors/_base';
 
 // services
 import AuthAPIService from '@/services/AuthAPIService';
+import { apiService } from '@/services/api';
 
 // types
-import type { GitHubAuthStartResponse } from '@/types/auth';
+import type { GitHubAuthStartResponseBody } from '@/types/auth';
 
 const LoginPage: NextPage = () => {
   const router = useRouter();
@@ -37,7 +37,7 @@ const LoginPage: NextPage = () => {
 
   const handleGithubLogin = async () => {
     const authAPIService = new AuthAPIService();
-    let result: GitHubAuthStartResponse;
+    let result: GitHubAuthStartResponseBody;
 
     try {
       setLoading(true);
@@ -57,7 +57,7 @@ const LoginPage: NextPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-background">
       {/* Theme Toggle - Top Right */}
       <div className="absolute right-4 top-4">
-        <ThemeToggle />
+        <ColorSchemeToggle />
       </div>
 
       <div className="flex w-full max-w-md flex-col items-center justify-center px-4">

@@ -3,7 +3,7 @@ import BaseAPIService, { type BaseAPIServiceOptions } from '@/services/BaseAPISe
 
 // types
 import type { RequestOptions } from '@/services/BaseAPIService';
-import type { GitHubAuthCompleteRequestBody, GitHubAuthStartResponse } from '@/types/auth';
+import type { GitHubAuthCompleteRequestBody, GitHubAuthStartResponseBody } from '@/types/auth';
 
 export default class AuthAPIService extends BaseAPIService {
   // public
@@ -64,7 +64,7 @@ export default class AuthAPIService extends BaseAPIService {
     }
   }
 
-  public async startGitHubAuth(options?: RequestOptions): Promise<GitHubAuthStartResponse> {
+  public async startGitHubAuth(options?: RequestOptions): Promise<GitHubAuthStartResponseBody> {
     const __functionName = 'startGitHubAuth';
     const logPrefix = `${AuthAPIService.displayName}#${__functionName}`;
     let response: Response;
@@ -82,7 +82,7 @@ export default class AuthAPIService extends BaseAPIService {
 
       this._checkHTTPError(response, { logPrefix });
 
-      return (await response.json()) as Promise<GitHubAuthStartResponse>;
+      return (await response.json()) as Promise<GitHubAuthStartResponseBody>;
     } catch (error) {
       throw this._parseError(error as Error, { logPrefix });
     }

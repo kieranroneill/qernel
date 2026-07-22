@@ -1,13 +1,18 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { ThemeToggle } from '@/components/common/ThemeToggle';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+// components
+import ColorSchemeToggle from '@/components/common/ColorSchemeToggle';
+
+// hooks
+import useStore from '@/hooks/useStore';
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  // hooks
+  const colorScheme = useStore(({ appearanceSettings }) => appearanceSettings.colorScheme);
 
   return (
     <div className="space-y-6">
@@ -27,10 +32,10 @@ export default function SettingsPage() {
           <div>
             <label className="text-sm font-medium text-foreground">Theme</label>
             <p className="mb-3 text-xs text-muted-foreground">Choose between light, dark, or system theme</p>
-            <ThemeToggle />
+            <ColorSchemeToggle />
             <p className="mt-2 text-xs text-muted-foreground">
-              Current theme: <span className="capitalize">{theme}</span>
-              {theme === 'system' && (
+              Current theme: <span className="capitalize">{colorScheme}</span>
+              {colorScheme === 'system' && (
                 <span> (displaying as {localStorage.getItem('theme') === 'system' ? 'system default' : 'custom'})</span>
               )}
             </p>
@@ -58,6 +63,7 @@ export default function SettingsPage() {
                 <div>
                   <p className="text-sm font-medium text-foreground">{user.username}</p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
+
                   <p className="mt-2 text-xs text-muted-foreground">GitHub ID: {user.githubId}</p>
                 </div>
               </div>

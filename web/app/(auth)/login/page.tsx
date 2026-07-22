@@ -1,105 +1,160 @@
 'use client';
 
 import type { NextPage } from 'next';
+import { Trans, useT } from 'next-i18next/client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 // components
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/Button';
 import ColorSchemeToggle from '@/components/common/ColorSchemeToggle';
+import GitHubIcon from '@/components/social/GitHubIcon';
 
-// errors
-import type { BaseError } from '@/errors/_base';
+// constants
+import { GITHUB_OAUTH_ERROR_EVENT_TYPE, GITHUB_OAUTH_SUCCESS_EVENT_TYPE, GITHUB_OAUTH_WINDOW_ID } from '@/constants';
 
-// services
-import AuthAPIService from '@/services/AuthAPIService';
-import { apiService } from '@/services/api';
+// hooks
+import useStore from '@/hooks/useStore';
 
-// types
-import type { GitHubAuthStartResponseBody } from '@/types/auth';
+// providers
+import LoginRouteProvider from '@/providers/LoginRouteProvider';
+
+// selectors
+import { useLogger } from '@/selectors/logging';
 
 const LoginPage: NextPage = () => {
+  const { t } = useT();
   const router = useRouter();
-  // states
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<BaseError | null>(null);
+  // refs
+  const githubOAuthWindowRef = useRef<Window>(null);
+  // selectors
+  const logger = useLogger();
+  // hooks
+  const authenticating = useStore(({ authenticating }) => authenticating);
+  const authenticationError = useStore(({ authenticationError }) => authenticationError);
+  const githubOAuthHandshake = useStore(({ githubOAuthHandshake }) => githubOAuthHandshake);
+  const meAction = useStore(({ meAction }) => meAction);
+  const resetAuthAction = useStore(({ resetAuthAction }) => resetAuthAction);
+  const startGitHubOAuthAction = useStore(({ startGitHubOAuthAction }) => startGitHubOAuthAction);
+  // callbacks
+  const handleCancelLoginClick = useCallback(() => {
+    // close the github oauth window if it is open
+    if (githubOAuthWindowRef.current) {
+      githubOAuthWindowRef.current.close();
+    }
+
+    resetAuthAction();
+  }, [githubOAuthWindowRef.current, resetAuthAction]);
+  const handleGitHubLoginClick = useCallback(() => {
+    void startGitHubOAuthAction();
+  }, []);
+  const onGitHubOAuthWindowMessage = useCallback(
+    async (event: MessageEvent) => {
+      const __functionName = 'onGitHubOAuthWindowMessage';
+
+      if (event.origin !== window.origin) {
+        return;
+      }
+
+      if (event.data?.type === GITHUB_OAUTH_SUCCESS_EVENT_TYPE) {
+        window.removeEventListener('message', onGitHubOAuthWindowMessage);
+        githubOAuthWindowRef.current?.close();
+
+        logger.debug(`${LoginPage.displayName}#${__functionName}: successfully logged in via github, redirecting`);
+
+        // fetch the user details
+        await meAction();
+
+        return resetAuthAction();
+      }
+
+      if (event.data?.type === GITHUB_OAUTH_ERROR_EVENT_TYPE) {
+        window.removeEventListener('message', onGitHubOAuthWindowMessage);
+        githubOAuthWindowRef.current?.close();
+
+        logger.error(`${LoginPage.displayName}#${__functionName}:`, event.data.error);
+
+        // TODO: set authentication error
+      }
+    },
+    [githubOAuthWindowRef.current, logger, router]
+  );
 
   useEffect(() => {
-    // Check if user is already authenticated
-    const checkAuth = async () => {
-      const { data } = await apiService.getCurrentUser();
-      if (data) {
-        router.push('/dashboard');
+    if (!githubOAuthWindowRef.current && githubOAuthHandshake) {
+      // attempt to open a pop-up
+      githubOAuthWindowRef.current = window.open(
+        githubOAuthHandshake.authorizeUrl,
+        GITHUB_OAUTH_WINDOW_ID,
+        'width=600,height=700,resizable=yes,scrollbars=yes'
+      );
+
+      // fallback to a hard redirect
+      if (!githubOAuthWindowRef.current) {
+        window.location.assign(githubOAuthHandshake.authorizeUrl);
+
+        return;
       }
-    };
-    void checkAuth();
-  }, [router]);
 
-  const handleGithubLogin = async () => {
-    const authAPIService = new AuthAPIService();
-    let result: GitHubAuthStartResponseBody;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      result = await authAPIService.startGitHubAuth();
-
-      window.location.href = result.authorizeUrl;
-    } catch (_error) {
-      setError(_error as BaseError);
-    } finally {
-      setLoading(false);
+      window.addEventListener('message', onGitHubOAuthWindowMessage);
     }
-  };
+
+    return () => window.removeEventListener('message', onGitHubOAuthWindowMessage);
+  }, [githubOAuthHandshake]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      {/* Theme Toggle - Top Right */}
-      <div className="absolute right-4 top-4">
-        <ColorSchemeToggle />
-      </div>
-
-      <div className="flex w-full max-w-md flex-col items-center justify-center px-4">
-        <div className="mb-8 space-y-2 text-center">
-          <h1 className="text-3xl font-light tracking-tight text-foreground">Qernel</h1>
-          <p className="text-sm text-muted-foreground">Local-first software generation workspace</p>
+    <LoginRouteProvider>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        {/* color scheme toggle - top right */}
+        <div className="absolute right-4 top-4">
+          <ColorSchemeToggle />
         </div>
 
-        <div className="w-full space-y-4">
-          <Button onClick={handleGithubLogin} disabled={loading} size="lg" className="w-full gap-2" variant="outline">
-            {loading ? (
-              <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
-                Redirecting...
-              </>
-            ) : (
-              <>
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                </svg>
-                Continue with GitHub
-              </>
-            )}
-          </Button>
+        <div className="flex w-full max-w-md flex-col items-center justify-center px-4">
+          <div className="mb-8 space-y-2 text-center">
+            <h1 className="text-3xl font-light tracking-tight text-foreground">{process.env.NEXT_PUBLIC_APP_TITLE}</h1>
+            <p className="text-sm text-muted-foreground">{process.env.NEXT_PUBLIC_APP_DESCRIPTION}</p>
+          </div>
 
-          {error && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-              {error.message}
+          {authenticating ? (
+            <div className="w-full space-y-4">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="h-14 w-14 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <p className="text-sm text-muted-foreground">{t('auth:captions.authenticating')}...</p>
+              </div>
+
+              <Button className="w-full gap-2" onClick={handleCancelLoginClick} size="lg" variant="default">
+                {t('common:labels.cancel')}
+              </Button>
+            </div>
+          ) : (
+            <div className="w-full space-y-4">
+              <Button className="w-full gap-2" onClick={handleGitHubLoginClick} size="lg" variant="default">
+                <GitHubIcon size={5} />
+
+                {t('auth:labels.continueWithGitHub')}
+              </Button>
+
+              {authenticationError && (
+                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+                  {`${authenticationError.code}: ${authenticationError.message}`}
+                </div>
+              )}
             </div>
           )}
-        </div>
 
-        <div className="mt-8 text-center text-xs text-muted-foreground">
-          <p>
-            By logging in, you agree to our{' '}
-            <a href="#" className="underline hover:text-foreground">
-              Terms of Service
-            </a>
-          </p>
+          <div className="mt-8 text-center text-xs text-muted-foreground">
+            <p>
+              <Trans
+                components={[<a className="underline hover:text-foreground" href="/terms-of-service" key="tos" />]}
+                i18nKey="auth:captions.agreeToTerms"
+                t={t}
+              />
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </LoginRouteProvider>
   );
 };
 

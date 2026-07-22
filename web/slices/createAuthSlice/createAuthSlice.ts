@@ -1,5 +1,5 @@
 // actions
-import { startGitHubOAuthAction } from './actions';
+import { resetAuthAction, startGitHubOAuthAction } from './actions';
 
 // types
 import type { ActionOptions, SliceOptions, StateCreator } from '@/types/store';
@@ -15,6 +15,7 @@ const createAuthSlice: (options: SliceOptions) => StateCreator<Slice> =
 
     return {
       // actions
+      resetAuthAction: resetAuthAction(actionOptions),
       startGitHubOAuthAction: startGitHubOAuthAction(actionOptions),
       // state
       authenticating: false,

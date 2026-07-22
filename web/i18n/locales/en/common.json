@@ -1,18 +1,12 @@
 {
   "captions": {
-    "loading": "Loading..",
-    "openNavigation": "Open Navigation"
-  },
-  "descriptions": {
-    "onboardContext": "Live boat status, weather, power, and maintenance",
-    "sidebar": "Boat summary, conversations, and navigation"
+    "loading": "Loading"
   },
   "labels": {
-    "context": "Context",
-    "retry": "Retry"
-  },
-  "titles": {
-    "navigation": "Navigation",
-    "onboardContext": "Onboard Context"
+    "cancel": "Cancel",
+    "darkTheme": "Dark Theme",
+    "redirecting": "Redirecting",
+    "systemTheme": "Light Theme",
+    "lightTheme": "Light Theme"
   }
 }

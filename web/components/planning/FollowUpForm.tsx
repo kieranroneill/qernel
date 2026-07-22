@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { FollowUpRenderer } from '@/components/planning/FollowUpRenderer';
 import type { FollowUpQuestion, FollowUpAnswers } from '@/types';
 import { Card } from '@/components/ui/card';
+
+// components
+import Button from '@/components/ui/Button';
 
 interface FollowUpFormProps {
   questions: FollowUpQuestion[];

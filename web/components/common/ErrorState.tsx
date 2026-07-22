@@ -1,7 +1,9 @@
 import React, { ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
+
+// components
+import Button from '@/components/ui/Button';
 
 interface ErrorStateProps {
   title: string;

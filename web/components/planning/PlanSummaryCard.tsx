@@ -1,8 +1,10 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { Plan } from '@/types';
 import { CheckCircle2, Loader2 } from 'lucide-react';
+
+// components
+import Button from '@/components/ui/Button';
 
 interface PlanSummaryCardProps {
   plan: Plan;

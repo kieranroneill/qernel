@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { apiService } from '@/services/api';
 import type { ApiError } from '@/types';
 import { Card } from '@/components/ui/card';
+
+// components
+import Button from '@/components/ui/Button';
 
 interface NewBuildComposerProps {
   onClose: () => void;

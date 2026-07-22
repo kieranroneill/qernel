@@ -1,10 +1,11 @@
 'use client';
 
 import { Moon, Sun, Monitor } from 'lucide-react';
+import { useT } from 'next-i18next/client';
 import { type FC, useCallback } from 'react';
 
 // components
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/Button';
 
 // hooks
 import useStore from '@/hooks/useStore';
@@ -14,6 +15,7 @@ import type { Props } from './types';
 import type { ColorScheme } from '@/types/settings';
 
 const ColorSchemeToggle: FC<Props> = () => {
+  const { t } = useT();
   // hooks
   const colorScheme = useStore(({ appearanceSettings }) => appearanceSettings.colorScheme);
   const setColorSchemeAction = useStore(({ setColorSchemeAction }) => setColorSchemeAction);
@@ -30,7 +32,7 @@ const ColorSchemeToggle: FC<Props> = () => {
         variant={colorScheme === 'light' ? 'default' : 'ghost'}
         className="h-8 w-8 p-0"
         onClick={handleColorSchemeChange('light')}
-        title="Light theme"
+        title={t('common:labels.lightTheme')}
       >
         <Sun size={16} />
       </Button>
@@ -40,7 +42,7 @@ const ColorSchemeToggle: FC<Props> = () => {
         variant={colorScheme === 'dark' ? 'default' : 'ghost'}
         className="h-8 w-8 p-0"
         onClick={handleColorSchemeChange('dark')}
-        title="Dark theme"
+        title={t('common:labels.darkTheme')}
       >
         <Moon size={16} />
       </Button>
@@ -50,7 +52,7 @@ const ColorSchemeToggle: FC<Props> = () => {
         variant={colorScheme === 'system' ? 'default' : 'ghost'}
         className="h-8 w-8 p-0"
         onClick={handleColorSchemeChange('system')}
-        title="System theme"
+        title={t('common:labels.systemTheme')}
       >
         <Monitor size={16} />
       </Button>

@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Calendar, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { StageBadge } from '@/components/planning/StageBadge';
 import { apiService } from '@/services/api';
 import type { BuildSummary } from '@/types';
+
+// components
+import Button from '@/components/ui/Button';
 
 export function BuildList() {
   const [builds, setBuilds] = useState<BuildSummary[]>([]);

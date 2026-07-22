@@ -4,11 +4,13 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Plus, LogOut, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { StageBadge } from '@/components/planning/StageBadge';
 import { apiService } from '@/services/api';
 import type { BuildSummary } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
+
+// components
+import Button from '@/components/ui/Button';
 
 export function Sidebar() {
   const pathname = usePathname();

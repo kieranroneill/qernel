@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { StageTimeline } from '@/components/planning/StageTimeline';
 import { FollowUpForm } from '@/components/planning/FollowUpForm';
 import { PlanSummaryCard } from '@/components/planning/PlanSummaryCard';
@@ -11,6 +10,9 @@ import { apiService } from '@/services/api';
 import type { Build, FollowUpAnswers, FollowUpQuestion } from '@/types';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+
+// components
+import Button from '@/components/ui/Button';
 
 interface BuildWorkspaceProps {
   buildId: string;

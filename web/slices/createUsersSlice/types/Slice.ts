@@ -4,7 +4,7 @@ import type { User } from '@/types/users';
 
 interface Slice {
   // actions
-  meAction: () => Promise<void>;
+  meAction: () => Promise<User>;
   // state
   fetchingUser: boolean;
   fetchUserError: BaseError | null;

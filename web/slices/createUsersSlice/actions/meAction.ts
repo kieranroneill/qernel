@@ -5,8 +5,9 @@ import UsersAPIService from '@/services/UsersAPIService';
 import type { BaseError } from '@/errors/_base';
 import type { ActionOptions } from '@/types/store';
 import type { User } from '@/types/users';
+import { ErrorCodeEnum } from '@/enums';
 
-export default function meAction({ api, logger }: ActionOptions): () => Promise<void> {
+export default function meAction({ api, logger }: ActionOptions): () => Promise<User> {
   return async () => {
     const __functionName = 'meAction';
     const apiService = new UsersAPIService({
@@ -28,12 +29,22 @@ export default function meAction({ api, logger }: ActionOptions): () => Promise<
         ...state,
         user: result,
       }));
+
+      return result;
     } catch (error) {
       api.setState((state) => ({
         ...state,
         fetchingUser: false,
-        fetchUserError: error as BaseError,
+        ...((error as BaseError).isQernelError() && (error as BaseError).code === ErrorCodeEnum.UnauthorizedError
+          ? {
+              authenticatedError: error as BaseError,
+            }
+          : {
+              fetchUserError: error as BaseError,
+            }),
       }));
+
+      throw error;
     }
   };
 }

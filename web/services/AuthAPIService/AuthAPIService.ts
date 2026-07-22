@@ -25,7 +25,7 @@ export default class AuthAPIService extends BaseAPIService {
     let response: Response;
 
     try {
-      response = await fetch(`${this.routePrefix}/github/complete`, {
+      response = await fetch(`${this.routePrefix}/github/callback`, {
         body: JSON.stringify(body),
         headers: {
           'Content-Type': 'application/json',

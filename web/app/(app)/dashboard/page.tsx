@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { NewBuildComposer } from '@/components/builds/NewBuildComposer';
 import { BuildList } from '@/components/builds/BuildList';
+
+// components
+import Button from '@/components/ui/Button';
 
 export default function DashboardPage() {
   const searchParams = useSearchParams();

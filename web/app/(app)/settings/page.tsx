@@ -53,18 +53,16 @@ export default function SettingsPage() {
           {user ? (
             <>
               <div className="flex items-start gap-4">
-                {user.avatarUrl && (
-                  <img
-                    src={user.avatarUrl}
-                    alt={user.username}
-                    className="h-16 w-16 rounded-full border border-border"
-                  />
-                )}
+                {/*{user.avatarUrl && (*/}
+                {/*  <img*/}
+                {/*    src={user.avatarUrl}*/}
+                {/*    alt={user.username}*/}
+                {/*    className="h-16 w-16 rounded-full border border-border"*/}
+                {/*  />*/}
+                {/*)}*/}
                 <div>
-                  <p className="text-sm font-medium text-foreground">{user.username}</p>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-
-                  <p className="mt-2 text-xs text-muted-foreground">GitHub ID: {user.githubId}</p>
+                  <p className="text-sm font-medium text-foreground">{user.displayName}</p>
+                  {user.primaryEmail && <p className="text-sm text-muted-foreground">{user.primaryEmail.email}</p>}
                 </div>
               </div>
             </>
